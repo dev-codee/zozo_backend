@@ -25,7 +25,6 @@ const phoneSchema = new mongoose.Schema({
     is_published: { type: Boolean, default: false }
 }, { timestamps: true });
 
-phoneSchema.index({ slug: 1 });
 phoneSchema.index({ name: 'text' });
 phoneSchema.index({ 'prices.price': 1 }); // Index for price filtering
 
