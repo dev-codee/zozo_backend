@@ -9,3 +9,7 @@ export const getPhoneBySlug = async (slug) => {
     // DB logic to fetch a single phone
     return await Phone.findOne({ slug });
 };
+
+export const getPhonesByBrandSlug = async (brandSlug) => {
+    return await Phone.find({ brand_slug: brandSlug });
+};

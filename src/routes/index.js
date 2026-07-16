@@ -6,9 +6,11 @@ import taxRoutes from './tax.routes.js';
 import searchRoutes from './search.routes.js';
 import adminRoutes from './admin.routes.js';
 import authRoutes from './auth.routes.js';
+import homeRoutes from './home.routes.js';
 
 const router = Router();
 
+router.use('/home', homeRoutes);
 router.use('/phones', phoneRoutes);
 router.use('/brands', brandRoutes);
 router.use('/compare', compareRoutes);

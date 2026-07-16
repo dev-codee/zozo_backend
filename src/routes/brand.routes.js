@@ -5,5 +5,6 @@ const router = Router();
 
 router.get('/', brandController.getBrands);
 router.get('/:slug', brandController.getBrandBySlug);
+router.get('/:slug/phones', brandController.getBrandPhones);
 
 export default router;
