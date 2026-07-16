@@ -8,7 +8,20 @@ import { notFound } from './middlewares/notFound.middleware.js';
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://zozo-pk.vercel.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
