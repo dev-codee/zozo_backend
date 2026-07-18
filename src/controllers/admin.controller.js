@@ -14,13 +14,13 @@ export const uploadImage = asyncHandler(async (req, res) => {
     if (!req.file) {
         return res.status(400).json(new ApiResponse(400, null, "No file uploaded"));
     }
-    
+
     const uploadResult = await uploadOnCloudinary(req.file.path);
-    
+
     if (!uploadResult) {
         return res.status(500).json(new ApiResponse(500, null, "Failed to upload image to Cloudinary"));
     }
-    
+
     res.status(200).json(new ApiResponse(200, {
         url: uploadResult.secure_url,
         cloud_public_id: uploadResult.public_id,
@@ -31,28 +31,28 @@ export const uploadImage = asyncHandler(async (req, res) => {
 
 export const createPhone = asyncHandler(async (req, res) => {
     const phoneData = req.body;
-    
+
     if (!phoneData.name) {
         return res.status(400).json(new ApiResponse(400, null, "Phone name is required"));
     }
-    
+
     phoneData.slug = slugify(phoneData.name);
-    
+
     const existingPhone = await Phone.findOne({ slug: phoneData.slug });
     if (existingPhone) {
         return res.status(409).json(new ApiResponse(409, null, "A phone with this name already exists"));
     }
-    
+
     const newPhone = await Phone.create(phoneData);
-    
+
     res.status(201).json(new ApiResponse(201, newPhone, "Phone created successfully"));
 });
 
 export const loginAdmin = asyncHandler(async (req, res) => {
     const { username, password } = req.body;
-    
-    if (username === 'admin' && password === 'admin123') {
-        const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'zozosecretkey123', {
+
+    if (username === 'superzozoadmin' && password === '2yYN;6£10%') {
+        const token = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, {
             expiresIn: '30d'
         });
         res.status(200).json(new ApiResponse(200, { token }, "Login successful"));
