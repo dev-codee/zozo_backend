@@ -60,3 +60,19 @@ export const loginAdmin = asyncHandler(async (req, res) => {
         res.status(401).json(new ApiResponse(401, null, "Invalid credentials"));
     }
 });
+
+export const getAllPhones = asyncHandler(async (req, res) => {
+    const phones = await Phone.find({}).sort({ createdAt: -1 });
+    res.status(200).json(new ApiResponse(200, phones, "Phones fetched successfully"));
+});
+
+export const deletePhone = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const phone = await Phone.findByIdAndDelete(id);
+    
+    if (!phone) {
+        return res.status(404).json(new ApiResponse(404, null, "Phone not found"));
+    }
+    
+    res.status(200).json(new ApiResponse(200, null, "Phone deleted successfully"));
+});

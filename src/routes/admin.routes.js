@@ -9,6 +9,9 @@ router.post('/login', adminController.loginAdmin);
 
 router.get('/stats', protectAdmin, adminController.getDashboardStats);
 router.post('/upload', protectAdmin, upload.single('image'), adminController.uploadImage);
+
+router.get('/phones', protectAdmin, adminController.getAllPhones);
 router.post('/phones', protectAdmin, adminController.createPhone);
+router.delete('/phones/:id', protectAdmin, adminController.deletePhone);
 
 export default router;
