@@ -53,7 +53,7 @@ const phoneSchema = new mongoose.Schema({
         display: {
             size_inches: Number,
             resolution: String,
-            type: String,
+            type: { type: String },
             refresh_rate_hz: Number,
             protection: String,
             peak_brightness_nits: Number,
