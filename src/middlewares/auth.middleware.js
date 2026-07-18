@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'zozosecretkey123';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const protectAdmin = (req, res, next) => {
   let token;
