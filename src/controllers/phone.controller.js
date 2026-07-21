@@ -13,3 +13,8 @@ export const getPhoneBySlug = asyncHandler(async (req, res) => {
     const phone = await phoneService.getPhoneBySlug(req.params.slug);
     res.status(200).json(new ApiResponse(200, phone, "Phone fetched successfully"));
 });
+
+export const getPhoneDescription = asyncHandler(async (req, res) => {
+    const description = await phoneService.getPhoneDescription(req.params.slug);
+    res.status(200).json(new ApiResponse(200, { description }, "Description fetched successfully"));
+});

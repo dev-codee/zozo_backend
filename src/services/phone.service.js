@@ -34,17 +34,25 @@ export const getAllPhones = async (query) => {
 export const getPhoneBySlug = async (slug) => {
     // DB logic to fetch a single phone
     const phone = await Phone.findOne({ slug });
+    return phone;
+};
+
+export const getPhoneDescription = async (slug) => {
+    const phone = await Phone.findOne({ slug });
     if (!phone) return null;
 
-    if (!phone.description) {
-        const generatedDescription = await generatePhoneDescription(phone.name, phone.specs);
-        if (generatedDescription) {
-            phone.description = generatedDescription;
-            await phone.save();
-        }
+    if (phone.description) {
+        return phone.description;
     }
 
-    return phone;
+    const generatedDescription = await generatePhoneDescription(phone.name, phone.specs);
+    if (generatedDescription) {
+        phone.description = generatedDescription;
+        await phone.save();
+        return generatedDescription;
+    }
+
+    return null;
 };
 
 export const getPhonesByBrandSlug = async (brandSlug) => {

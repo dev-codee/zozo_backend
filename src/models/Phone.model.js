@@ -96,7 +96,7 @@ const phoneSchema = new mongoose.Schema({
             nfc: Boolean,
         },
         os: String,
-        extra_specs: { type: Map, of: String },
+        extra_specs: mongoose.Schema.Types.Mixed,
     },
 
     prices: [priceEntrySchema],

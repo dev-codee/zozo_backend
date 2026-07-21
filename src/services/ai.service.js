@@ -1,41 +1,44 @@
-import Groq from 'groq-sdk';
+import Anthropic from '@anthropic-ai/sdk';
 import env from '../config/env.js';
 
-let ai;
-if (env.GROQ_API_KEY && env.GROQ_API_KEY !== 'your_groq_api_key_here') {
-    ai = new Groq({ apiKey: env.GROQ_API_KEY });
+let anthropic;
+if (env.ANTHROPIC_API_KEY && env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here') {
+    anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
 } else {
-    console.warn("GROQ_API_KEY is not set or invalid. AI descriptions will not work.");
+    console.warn("ANTHROPIC_API_KEY is not set or invalid. AI descriptions will not work.");
 }
 
 export const generatePhoneDescription = async (phoneName, specs) => {
-    if (!ai) {
+    if (!anthropic) {
         console.warn("Skipping AI description generation because API key is missing.");
         return null;
     }
 
     try {
         const prompt = `
-Write a professional, engaging, and accurate product description for the smartphone "${phoneName}". 
-Use the following specifications as a reference to highlight its key features:
+Write a highly detailed, professional, and to-the-point product description for the smartphone "${phoneName}". 
+Use the following specifications as a reference:
 ${JSON.stringify(specs, null, 2)}
 
-The description should:
-- Be 2 to 3 paragraphs long.
-- Highlight the best features (e.g., camera, battery, display, or performance).
-- Have a professional, objective, and appealing tone suitable for an e-commerce website.
+The description MUST follow these guidelines:
+- Write 3 to 4 well-structured paragraphs.
+- Maintain a premium, professional, and objective tone suitable for a top-tier e-commerce platform. Avoid overly fluffy marketing jargon.
+- Highlight the standout features (e.g., camera capabilities, processing power, battery endurance, display quality).
+- Explicitly deduce and explain extra features or capabilities that are typical for this phone's tier but might not be fully detailed in the raw specs (e.g., AI camera enhancements, gaming performance, software ecosystem benefits, build quality, and real-world usage scenarios).
+- Make sure to get straight to the point without generic introductions.
 - DO NOT use generic placeholders or mention that you are an AI.
-- Format the response in clean markdown or plain text.
+- Format the response in clean markdown.
         `;
 
-        const chatCompletion = await ai.chat.completions.create({
+        const message = await anthropic.messages.create({
+            model: 'claude-sonnet-5',
+            max_tokens: 1024,
             messages: [{ role: 'user', content: prompt }],
-            model: 'llama-3.1-8b-instant',
         });
 
-        return chatCompletion.choices[0]?.message?.content;
+        return message.content[0].text;
     } catch (error) {
-        console.error("Error generating description from Groq:", error);
+        console.error("Error generating description from Anthropic:", error);
         return null;
     }
 };
