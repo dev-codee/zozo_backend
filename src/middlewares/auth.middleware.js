@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET;
 
 export const protectAdmin = (req, res, next) => {
   let token;
@@ -11,7 +10,7 @@ export const protectAdmin = (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       if (decoded.role !== 'admin') {
         return res.status(403).json({ success: false, message: 'Not authorized as admin' });

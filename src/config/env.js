@@ -14,6 +14,7 @@ export default {
     PORT: process.env.PORT || 5000,
     MONGODB_URI: process.env.MONGODB_URI,
     JWT_SECRET: process.env.JWT_SECRET,
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
     NODE_ENV: process.env.NODE_ENV || 'development',
     CLOUDINARY: {
         CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,

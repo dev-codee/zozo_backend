@@ -1,4 +1,5 @@
 import { Phone } from '../models/Phone.model.js';
+import { generatePhoneDescription } from './ai.service.js';
 
 export const getAllPhones = async (query) => {
     let filter = {};
@@ -29,9 +30,21 @@ export const getAllPhones = async (query) => {
     return await Phone.find(filter).sort(sortQuery).limit(20);
 };
 
+
 export const getPhoneBySlug = async (slug) => {
     // DB logic to fetch a single phone
-    return await Phone.findOne({ slug });
+    const phone = await Phone.findOne({ slug });
+    if (!phone) return null;
+
+    if (!phone.description) {
+        const generatedDescription = await generatePhoneDescription(phone.name, phone.specs);
+        if (generatedDescription) {
+            phone.description = generatedDescription;
+            await phone.save();
+        }
+    }
+
+    return phone;
 };
 
 export const getPhonesByBrandSlug = async (brandSlug) => {

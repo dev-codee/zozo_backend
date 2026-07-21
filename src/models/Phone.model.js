@@ -41,6 +41,7 @@ const phoneSchema = new mongoose.Schema({
     brand_slug: { type: String, required: true, index: true },
     model_number: { type: String },
     release_date: { type: Date },
+    description: { type: String },
     status: {
         type: String,
         enum: ['available', 'upcoming', 'discontinued', 'out_of_stock'],

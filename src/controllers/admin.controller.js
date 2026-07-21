@@ -76,3 +76,34 @@ export const deletePhone = asyncHandler(async (req, res) => {
     
     res.status(200).json(new ApiResponse(200, null, "Phone deleted successfully"));
 });
+export const getPhoneById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const phone = await Phone.findById(id);
+    
+    if (!phone) {
+        return res.status(404).json(new ApiResponse(404, null, "Phone not found"));
+    }
+    
+    res.status(200).json(new ApiResponse(200, phone, "Phone fetched successfully"));
+});
+
+export const updatePhone = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    if (updateData.name) {
+        updateData.slug = slugify(updateData.name);
+        const existingPhone = await Phone.findOne({ slug: updateData.slug, _id: { $ne: id } });
+        if (existingPhone) {
+            return res.status(409).json(new ApiResponse(409, null, "A phone with this name already exists"));
+        }
+    }
+    
+    const phone = await Phone.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    
+    if (!phone) {
+        return res.status(404).json(new ApiResponse(404, null, "Phone not found"));
+    }
+    
+    res.status(200).json(new ApiResponse(200, phone, "Phone updated successfully"));
+});
