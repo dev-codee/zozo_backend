@@ -12,6 +12,7 @@ router.post('/upload', protectAdmin, upload.single('image'), adminController.upl
 
 router.get('/phones', protectAdmin, adminController.getAllPhones);
 router.post('/phones', protectAdmin, adminController.createPhone);
+router.post('/phones/ai-fill', protectAdmin, adminController.aiFillPhone);
 router.delete('/phones/:id', protectAdmin, adminController.deletePhone);
 router.get('/phones/:id', protectAdmin, adminController.getPhoneById);
 router.put('/phones/:id', protectAdmin, adminController.updatePhone);

@@ -107,3 +107,19 @@ export const updatePhone = asyncHandler(async (req, res) => {
     
     res.status(200).json(new ApiResponse(200, phone, "Phone updated successfully"));
 });
+
+export const aiFillPhone = asyncHandler(async (req, res) => {
+    const { phoneName } = req.body;
+    if (!phoneName) {
+        return res.status(400).json(new ApiResponse(400, null, "Phone name is required"));
+    }
+    
+    const { generatePhoneDataAdmin } = await import('../services/ai.service.js');
+    const aiData = await generatePhoneDataAdmin(phoneName);
+    
+    if (!aiData) {
+        return res.status(500).json(new ApiResponse(500, null, "Failed to generate AI data"));
+    }
+    
+    res.status(200).json(new ApiResponse(200, aiData, "AI data generated successfully"));
+});

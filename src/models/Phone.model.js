@@ -58,6 +58,7 @@ const phoneSchema = new mongoose.Schema({
             refresh_rate_hz: Number,
             protection: String,
             peak_brightness_nits: Number,
+            features: [String],
         },
         performance: {
             chipset: String,
@@ -73,6 +74,7 @@ const phoneSchema = new mongoose.Schema({
             rear_summary: String,
             front_summary: String,
             video_recording: String,
+            video_features: [String],
         },
         battery: {
             capacity_mah: Number,
@@ -94,8 +96,11 @@ const phoneSchema = new mongoose.Schema({
             usb: String,
             bluetooth: String,
             nfc: Boolean,
+            network_features: [String],
+            sim_types: [String],
         },
         os: String,
+        ai_features: [String],
         extra_specs: mongoose.Schema.Types.Mixed,
     },
 
