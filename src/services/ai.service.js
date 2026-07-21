@@ -27,11 +27,11 @@ The description MUST follow these guidelines:
 - Explicitly deduce and explain extra features or capabilities that are typical for this phone's tier but might not be fully detailed in the raw specs (e.g., AI camera enhancements, gaming performance, software ecosystem benefits, build quality, and real-world usage scenarios).
 - Make sure to get straight to the point without generic introductions.
 - DO NOT use generic placeholders or mention that you are an AI.
-- Format the response in clean markdown.
+- Format the response in plain text. DO NOT use markdown symbols like *, #, -, or bold/italic formatting.
         `;
 
         const message = await anthropic.messages.create({
-            model: 'claude-sonnet-5',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 1024,
             messages: [{ role: 'user', content: prompt }],
         });
