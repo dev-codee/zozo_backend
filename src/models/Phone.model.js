@@ -136,6 +136,22 @@ const phoneSchema = new mongoose.Schema({
 
     sources: [sourceRefSchema],
 
+    // Content Tracking & Approvals
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
+    reviewer: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
+    approvalStatus: {
+        type: String,
+        enum: ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED'],
+        default: 'DRAFT'
+    },
+    importSource: { type: String },
+    lastSync: { type: Date },
+    syncStatus: {
+        type: String,
+        enum: ['SUCCESS', 'FAILED', 'PENDING']
+    },
+
     is_published: { type: Boolean, default: false },
 }, { timestamps: true });
 

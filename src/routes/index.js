@@ -7,6 +7,8 @@ import searchRoutes from './search.routes.js';
 import adminRoutes from './admin.routes.js';
 import authRoutes from './auth.routes.js';
 import homeRoutes from './home.routes.js';
+import activityRoutes from './activity.routes.js';
+import userRoutes from './user.routes.js';
 
 const router = Router();
 
@@ -18,5 +20,7 @@ router.use('/tax', taxRoutes);
 router.use('/search', searchRoutes);
 router.use('/admin', adminRoutes);
 router.use('/auth', authRoutes);
+router.use('/activity', activityRoutes);
+router.use('/user', userRoutes);
 
 export default router;
