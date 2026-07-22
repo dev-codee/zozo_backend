@@ -7,7 +7,7 @@ export const trackActivity = asyncHandler(async (req, res) => {
     const { type, details } = req.body;
     let userId = null;
 
-    // Optional: Extract userId if user is logged in
+    // Optional: Extract userId if user is logged in hehe
     const token = req.cookies?.token;
     if (token) {
         try {
