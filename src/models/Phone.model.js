@@ -44,9 +44,20 @@ const phoneSchema = new mongoose.Schema({
     description: { type: String },
     status: {
         type: String,
-        enum: ['available', 'upcoming', 'discontinued', 'out_of_stock'],
+        enum: ['available', 'upcoming', 'discontinued', 'out_of_stock', 'rumored', 'released'],
         default: 'available',
     },
+
+    series: { type: String },
+    category: { type: String },
+    subcategory: { type: String },
+    country_availability: [String],
+    carrier_version: { type: String },
+    region_version: { type: String },
+    manufacturer: { type: String },
+    made_in: { type: String },
+    tags: [String],
+    video_url: { type: String },
 
     images: [imageAssetSchema],
 
