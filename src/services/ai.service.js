@@ -3,29 +3,29 @@ import env from '../config/env.js';
 
 let anthropic;
 if (env.ANTHROPIC_API_KEY && env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here') {
-    anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
 } else {
-    console.warn("ANTHROPIC_API_KEY is not set or invalid. AI descriptions will not work.");
+  console.warn("ANTHROPIC_API_KEY is not set or invalid. AI descriptions will not work.");
 }
 
 export const generatePhoneDescription = async (phoneName, specs, tags = []) => {
-    if (!anthropic) {
-        console.warn("Skipping AI description generation because API key is missing.");
-        return null;
-    }
+  if (!anthropic) {
+    console.warn("Skipping AI description generation because API key is missing.");
+    return null;
+  }
 
-    try {
-        const isFlagship = (tags || []).some(t => t.toLowerCase() === 'flagship' || t.toLowerCase() === 'premium') || 
-                           (specs?.performance?.chipset && (
-                               specs.performance.chipset.toLowerCase().includes('apple a18 pro') ||
-                               specs.performance.chipset.toLowerCase().includes('apple a17 pro') ||
-                               specs.performance.chipset.toLowerCase().includes('snapdragon 8 elite') ||
-                               specs.performance.chipset.toLowerCase().includes('snapdragon 8 gen 3') ||
-                               specs.performance.chipset.toLowerCase().includes('dimensity 9400') ||
-                               specs.performance.chipset.toLowerCase().includes('dimensity 9300')
-                           ));
+  try {
+    const isFlagship = (tags || []).some(t => t.toLowerCase() === 'flagship' || t.toLowerCase() === 'premium') ||
+      (specs?.performance?.chipset && (
+        specs.performance.chipset.toLowerCase().includes('apple a18 pro') ||
+        specs.performance.chipset.toLowerCase().includes('apple a17 pro') ||
+        specs.performance.chipset.toLowerCase().includes('snapdragon 8 elite') ||
+        specs.performance.chipset.toLowerCase().includes('snapdragon 8 gen 3') ||
+        specs.performance.chipset.toLowerCase().includes('dimensity 9400') ||
+        specs.performance.chipset.toLowerCase().includes('dimensity 9300')
+      ));
 
-        const prompt = `
+    const prompt = `
 You are an expert mobile technology reviewer. Write a highly detailed, professional, and comprehensive product overview/review for the smartphone "${phoneName}".
 Use the following specifications as a reference:
 ${JSON.stringify(specs, null, 2)}
@@ -67,8 +67,8 @@ Analyze gaming performance on high-end titles (PUBG, Genshin Impact, Call of Dut
 11. "Benchmarks" (200-300 words)
 Reference performance benchmark expectations (such as AnTuTu, Geekbench single/multi core, 3DMark) typical for this hardware setup.
 
-12. "FAQs" (300-500 words)
-Generate a list of 4-5 common questions and answers about this phone (e.g., does it support eSIM, water resistance rating, storage expansion, etc.).
+12. "FAQs" 
+Generate a list of 5 common questions and answers about this phone (e.g., does it support eSIM, water resistance rating, storage expansion, etc.).
 
 13. "Pros & Cons" (at the bottom)
 Under the heading "Pros & Cons", list bullet points for Pros (at least 4 points) and Cons (at least 3 points).
@@ -80,33 +80,33 @@ Formatting Guidelines:
 - Write each paragraph in clear, standard English.
 `;
 
-        const message = await anthropic.messages.create({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 4096,
-            messages: [{ role: 'user', content: prompt }],
-        });
+    const message = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }],
+    });
 
-        return message.content[0].text;
-    } catch (error) {
-        console.error("Error generating description from Anthropic:", error);
-        return null;
-    }
+    return message.content[0].text;
+  } catch (error) {
+    console.error("Error generating description from Anthropic:", error);
+    return null;
+  }
 };
 
 export const generateAIComparison = async (phones) => {
-    if (!anthropic) {
-        console.warn("Skipping AI comparison because API key is missing.");
-        return null;
-    }
+  if (!anthropic) {
+    console.warn("Skipping AI comparison because API key is missing.");
+    return null;
+  }
 
-    try {
-        const phoneDetails = phones.map(p => ({
-            name: p.name,
-            specs: p.specs,
-            price: p.prices?.[0]?.price_pkr
-        }));
+  try {
+    const phoneDetails = phones.map(p => ({
+      name: p.name,
+      specs: p.specs,
+      price: p.prices?.[0]?.price_pkr
+    }));
 
-        const prompt = `
+    const prompt = `
 You are an expert mobile technology reviewer. Please provide a detailed and professional comparison between the following smartphones:
 ${JSON.stringify(phoneDetails, null, 2)}
 
@@ -121,27 +121,27 @@ The comparison MUST follow these guidelines:
 - Format the response in plain text. DO NOT use markdown symbols like *, #, -, or bold/italic formatting.
         `;
 
-        const message = await anthropic.messages.create({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 1500,
-            messages: [{ role: 'user', content: prompt }],
-        });
+    const message = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }],
+    });
 
-        return message.content[0].text;
-    } catch (error) {
-        console.error("Error generating comparison from Anthropic:", error);
-        return null;
-    }
+    return message.content[0].text;
+  } catch (error) {
+    console.error("Error generating comparison from Anthropic:", error);
+    return null;
+  }
 };
 
 export const generatePhoneDataAdmin = async (phoneName) => {
-    if (!anthropic) {
-        console.warn("Skipping AI data generation because API key is missing.");
-        return null;
-    }
+  if (!anthropic) {
+    console.warn("Skipping AI data generation because API key is missing.");
+    return null;
+  }
 
-    try {
-        const schemaString = `
+  try {
+    const schemaString = `
 {
   "brand_slug": "Brand name slugified (e.g. apple, samsung)",
   "model_number": "Model number if known",
@@ -262,7 +262,7 @@ export const generatePhoneDataAdmin = async (phoneName) => {
 }
         `;
 
-        const prompt = `
+    const prompt = `
 You are an expert mobile technology database architect and researcher.
 Your task is to generate a comprehensive JSON object containing all known specifications and features for the smartphone: "${phoneName}".
 The output MUST strictly conform to the provided JSON schema. Ensure you research thoroughly and fill in as many fields accurately as possible. For arrays representing checkboxes (like display_features, video_recording_features, ai_features), only include the values from the schema example that actually apply to this phone. Leave fields as empty strings or false if the data is unavailable or inapplicable.
@@ -273,18 +273,18 @@ Here is the required schema:
 ${schemaString}
 `;
 
-        const message = await anthropic.messages.create({
-            model: 'claude-haiku-4-5-20251001',
-            max_tokens: 4000,
-            messages: [{ role: 'user', content: prompt }],
-        });
+    const message = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }],
+    });
 
-        const rawText = message.content[0].text;
-        // Basic cleanup in case Claude adds markdown
-        const jsonText = rawText.replace(/^[`\s]*json/i, '').replace(/[`\s]*$/i, '').trim();
-        return JSON.parse(jsonText);
-    } catch (error) {
-        console.error("Error generating AI data from Anthropic:", error);
-        return null;
-    }
+    const rawText = message.content[0].text;
+    // Basic cleanup in case Claude adds markdown
+    const jsonText = rawText.replace(/^[`\s]*json/i, '').replace(/[`\s]*$/i, '').trim();
+    return JSON.parse(jsonText);
+  } catch (error) {
+    console.error("Error generating AI data from Anthropic:", error);
+    return null;
+  }
 };
