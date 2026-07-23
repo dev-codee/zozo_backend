@@ -128,15 +128,25 @@ export const getAllPhones = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
+    const search = req.query.search || '';
 
-    const phones = await Phone.find({}).sort({ createdAt: -1 })
+    const query = {};
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { model_number: { $regex: search, $options: 'i' } },
+            { brand_slug: { $regex: search, $options: 'i' } }
+        ];
+    }
+
+    const phones = await Phone.find(query).sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate('createdBy', 'name')
         .populate('updatedBy', 'name')
         .populate('reviewer', 'name');
         
-    const total = await Phone.countDocuments({});
+    const total = await Phone.countDocuments(query);
 
     res.status(200).json(new ApiResponse(200, {
         phones,
