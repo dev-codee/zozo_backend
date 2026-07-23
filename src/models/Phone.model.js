@@ -58,6 +58,7 @@ const phoneSchema = new mongoose.Schema({
     made_in: { type: String },
     tags: [String],
     video_url: { type: String },
+    price_pkr: { type: Number },
 
     images: [imageAssetSchema],
 
