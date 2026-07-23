@@ -8,31 +8,81 @@ if (env.ANTHROPIC_API_KEY && env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_h
     console.warn("ANTHROPIC_API_KEY is not set or invalid. AI descriptions will not work.");
 }
 
-export const generatePhoneDescription = async (phoneName, specs) => {
+export const generatePhoneDescription = async (phoneName, specs, tags = []) => {
     if (!anthropic) {
         console.warn("Skipping AI description generation because API key is missing.");
         return null;
     }
 
     try {
+        const isFlagship = (tags || []).some(t => t.toLowerCase() === 'flagship' || t.toLowerCase() === 'premium') || 
+                           (specs?.performance?.chipset && (
+                               specs.performance.chipset.toLowerCase().includes('apple a18 pro') ||
+                               specs.performance.chipset.toLowerCase().includes('apple a17 pro') ||
+                               specs.performance.chipset.toLowerCase().includes('snapdragon 8 elite') ||
+                               specs.performance.chipset.toLowerCase().includes('snapdragon 8 gen 3') ||
+                               specs.performance.chipset.toLowerCase().includes('dimensity 9400') ||
+                               specs.performance.chipset.toLowerCase().includes('dimensity 9300')
+                           ));
+
         const prompt = `
-Write a highly detailed, professional, and to-the-point product description for the smartphone "${phoneName}". 
+You are an expert mobile technology reviewer. Write a highly detailed, professional, and comprehensive product overview/review for the smartphone "${phoneName}".
 Use the following specifications as a reference:
 ${JSON.stringify(specs, null, 2)}
 
-The description MUST follow these guidelines:
-- Write in proper bullet points (using bullet character •).
-- Keep it to the point, using simple English and a professional tone suitable for a top-tier e-commerce platform. Avoid fluffy marketing jargon.
-- Highlight the standout features (e.g., camera capabilities, processing power, battery endurance, display quality).
-- Explicitly deduce and explain extra features or capabilities that are typical for this phone's tier but might not be fully detailed in the raw specs (e.g., AI camera enhancements, gaming performance, software ecosystem benefits, build quality, and real-world usage scenarios).
-- Make sure to get straight to the point without generic introductions.
-- DO NOT use generic placeholders or mention that you are an AI.
-- Format the response cleanly with each point on a new line starting with •. Do not use other markdown symbols.
-        `;
+Flagship Status: ${isFlagship ? 'This is a FLAGSHIP smartphone. Tailor the review to judge it by flagship standards (highest expectations for camera, performance, software updates, and build quality).' : 'This is a mid-range/budget smartphone. Adjust expectations accordingly.'}
+
+Your response must contain exactly the following sections with their corresponding headings and word counts. Ensure each section is thorough, descriptive, and contains rich analysis to meet the target word lengths:
+
+1. "Quick Verdict for ${phoneName}" (150-250 words)
+Write a summary of the phone's strengths, weaknesses, and target audience.
+
+2. "Design of ${phoneName}" (300-500 words)
+Analyze the materials, build quality, ergonomics, colors, ports, water resistance, and overall aesthetic.
+
+3. "Display of ${phoneName}" (300-500 words)
+Detail the screen technology, resolution, brightness (peak/typical), refresh rate, colors, screen protection, and real-world viewing experience.
+
+4. "Performance of ${phoneName}" (400-700 words)
+Examine the processor, CPU cores, GPU capabilities, RAM, storage speed, multitasking ability, thermal management, and daily responsiveness.
+
+5. "Camera of ${phoneName}" (800-1200 words)
+Provide an in-depth analysis of the rear and front camera sensors, image quality in daylight and low light, zoom capabilities, video recording resolutions/features, stabilization, and portrait/computational photography.
+
+6. "Battery of ${phoneName}" (250-400 words)
+Discuss battery capacity, real-world battery life, screen-on time, fast charging speeds (wattage), wireless/reverse wireless charging, and charger inclusion in the box.
+
+7. "Software of ${phoneName}" (250-400 words)
+Cover the operating system, user interface, software features, customizability, pre-installed apps, and updates support/upgrade promise.
+
+8. "Audio of ${phoneName}" (150-250 words)
+Evaluate speaker setup (stereo/mono), sound quality, volume levels, Hi-Res audio support, Dolby Atmos, and headphone jack presence.
+
+9. "Connectivity" (150-250 words)
+Detail 5G bands, Wi-Fi standard, Bluetooth version, NFC availability, USB speed, and SIM options.
+
+10. "Gaming" (300-500 words)
+Analyze gaming performance on high-end titles (PUBG, Genshin Impact, Call of Duty), frame rates, heat generation, throttling, and game mode features.
+
+11. "Benchmarks" (200-300 words)
+Reference performance benchmark expectations (such as AnTuTu, Geekbench single/multi core, 3DMark) typical for this hardware setup.
+
+12. "FAQs" (300-500 words)
+Generate a list of 4-5 common questions and answers about this phone (e.g., does it support eSIM, water resistance rating, storage expansion, etc.).
+
+13. "Pros & Cons" (at the bottom)
+Under the heading "Pros & Cons", list bullet points for Pros (at least 4 points) and Cons (at least 3 points).
+
+Formatting Guidelines:
+- Start each section with its heading name (e.g., "Quick Verdict for ${phoneName}") on a new line. Do not use markdown headers (# or ##). Simply write the heading text.
+- Do not use generic placeholders or mention you are an AI.
+- Ensure the tone is objective, professional, and authoritative.
+- Write each paragraph in clear, standard English.
+`;
 
         const message = await anthropic.messages.create({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 1024,
+            max_tokens: 4096,
             messages: [{ role: 'user', content: prompt }],
         });
 

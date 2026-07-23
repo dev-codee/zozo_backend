@@ -52,7 +52,7 @@ export const getPhoneDescription = async (slug) => {
         return phone.description;
     }
 
-    const generatedDescription = await generatePhoneDescription(phone.name, phone.specs);
+    const generatedDescription = await generatePhoneDescription(phone.name, phone.specs, phone.tags);
     if (generatedDescription) {
         phone.description = generatedDescription;
         await phone.save();
