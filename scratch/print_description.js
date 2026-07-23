@@ -13,8 +13,9 @@ const printDesc = async () => {
         const phone = await Phone.findOne({ description: { $exists: true, $ne: '' } });
         if (phone) {
             console.log(`Phone: ${phone.name}`);
-            console.log('--- DESCRIPTION START ---');
-            console.log(phone.description.substring(0, 1000));
+            console.log(`Total Length: ${phone.description.length}`);
+            console.log('--- LAST 1500 CHARACTERS ---');
+            console.log(phone.description.substring(phone.description.length - 1500));
             console.log('--- DESCRIPTION END ---');
         } else {
             console.log("No phone with a description found.");

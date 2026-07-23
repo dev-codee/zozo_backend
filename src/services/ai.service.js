@@ -32,49 +32,52 @@ ${JSON.stringify(specs, null, 2)}
 
 Flagship Status: ${isFlagship ? 'This is a FLAGSHIP smartphone. Tailor the review to judge it by flagship standards (highest expectations for camera, performance, software updates, and build quality).' : 'This is a mid-range/budget smartphone. Adjust expectations accordingly.'}
 
-Your response must contain exactly the following sections with their corresponding headings and word counts. Ensure each section is thorough, descriptive, and contains rich analysis to meet the target word lengths:
+Your response must contain exactly the following sections with their corresponding headings. Keep each section concise, to the point, and highly informative:
 
-1. "## Quick Verdict for **${phoneName}**" (150-250 words)
+- "## Quick Verdict for **${phoneName}**" (50-80 words)
 Write a summary of the phone's strengths, weaknesses, and target audience.
 
-2. "## Design and Build Quality of **${phoneName}**" (300-500 words)
+- "## Design and Build Quality of **${phoneName}**" (80-120 words)
 Analyze the materials, build quality, ergonomics (such as weight, thickness, colors, IP rating, buttons, grip, premium feel), and overall aesthetic.
 
-3. "## Display of **${phoneName}**" (300-500 words)
+- "## Display of **${phoneName}**" (80-120 words)
 Detail the screen technology, resolution, brightness (peak/typical), refresh rate, colors, screen protection, and real-world viewing experience.
 
-4. "## Performance of **${phoneName}**" (400-700 words)
+- "## Performance of **${phoneName}**" (100-150 words)
 Examine the processor, CPU cores, GPU capabilities, RAM, storage speed, multitasking ability, thermal management, and daily responsiveness.
 
-5. "## Camera of **${phoneName}**" (800-1200 words)
-Provide an in-depth analysis of the rear and front camera sensors, image quality in daylight and low light, zoom capabilities, video recording resolutions/features, stabilization, and portrait/computational photography.
+- "## Camera of **${phoneName}**" (150-250 words)
+Provide a concise analysis of the rear and front camera sensors, image quality in daylight and low light, zoom capabilities, video recording resolutions/features, stabilization, and portrait/computational photography.
 
-6. "## Battery of **${phoneName}**" (250-400 words)
+- "## Battery of **${phoneName}**" (80-120 words)
 Discuss battery capacity, real-world battery life, screen-on time, fast charging speeds (wattage), wireless/reverse wireless charging, and charger inclusion in the box.
 
-7. "## Software of **${phoneName}**" (250-400 words)
+- "## Software of **${phoneName}**" (80-120 words)
 Cover the operating system, user interface, software features, customizability, pre-installed apps, and updates support/upgrade promise.
 
-8. "## Audio of **${phoneName}**" (150-250 words)
+- "## Audio of **${phoneName}**" (50-80 words)
 Evaluate speaker setup (stereo/mono), sound quality, volume levels, Hi-Res audio support, Dolby Atmos, and headphone jack presence.
 
-9. "## Connectivity" (150-250 words)
+- "## Connectivity" (50-80 words)
 Detail 5G bands, Wi-Fi standard, Bluetooth version, NFC availability, USB speed, and SIM options.
 
-10. "## Gaming" (300-500 words)
+- "## Gaming" (80-120 words)
 Analyze gaming performance on high-end titles (PUBG, Genshin Impact, Call of Duty), frame rates, heat generation, throttling, and game mode features.
 
-11. "## Benchmarks" (200-300 words)
+- "## Benchmarks" (50-80 words)
 Reference performance benchmark expectations (such as AnTuTu, Geekbench single/multi core, 3DMark) typical for this hardware setup.
 
-12. "## FAQs" 
-Generate a list of 5 common questions and answers about this phone (e.g., does it support eSIM, water resistance rating, storage expansion, etc.).
+- "## FAQs" 
+Generate a list of exactly 5 common questions and answers about this phone. Format them strictly as Q&A pairs (e.g. "Q: Does it support eSIM?\nA: Yes, it supports...").
 
-13. "## Pros & Cons" (at the bottom)
-Under the heading "## Pros & Cons", list bullet points for Pros (at least 4 points) and Cons (at least 3 points).
+- "## Pros & Cons" (near the bottom)
+Under the heading "## Pros & Cons", list Pros (at least 4 bullet points starting with "+ ") and Cons (at least 3 bullet points starting with "- "). Do not mix them; write all Pros first, then all Cons.
+
+- "## **${phoneName}** Best For" (at the very bottom)
+Under the heading "## **${phoneName}** Best For", write a concise paragraph (30-50 words) outlining what this phone is best suited for (e.g. intensive gaming, photography, long battery life, general day-to-day tasks, etc.) based on its key strengths.
 
 Formatting Guidelines:
-- Start each section with its heading name formatted as a markdown level 2 heading (e.g., "## Design and Build Quality of **${phoneName}**") on a new line.
+- Start each section with its heading name formatted as a markdown level 2 heading (e.g., "## Design and Build Quality of **${phoneName}**") on a new line. Do NOT include section numbers (like "1. ", "2. ", etc.) in the heading text.
 - Wherever you reference or write the phone model name "${phoneName}" in the headings or paragraphs, always format it in bold using double asterisks (e.g., "**${phoneName}**").
 - Do not use generic placeholders or mention you are an AI.
 - Ensure the tone is objective, professional, and authoritative.
