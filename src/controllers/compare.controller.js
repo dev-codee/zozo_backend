@@ -42,10 +42,32 @@ export const getAIComparison = asyncHandler(async (req, res) => {
         return res.status(400).json(new ApiResponse(400, null, "At least two phones are required for AI comparison"));
     }
     
+    const sortedSlugs = [...slugsArray].sort();
+    const Comparison = (await import('../models/Comparison.model.js')).default;
+    const existingComparison = await Comparison.findOne({ slugs: sortedSlugs });
+    
+    if (existingComparison && existingComparison.ai_verdict) {
+        return res.status(200).json(new ApiResponse(200, { verdict: existingComparison.ai_verdict }, "AI Comparison fetched from cache"));
+    }
+    
     const phones = await compareService.comparePhonesList(slugsArray);
+    if (phones.length !== slugsArray.length) {
+        return res.status(404).json(new ApiResponse(404, null, "One or more phones not found or not approved"));
+    }
     
     const { generateAIComparison } = await import('../services/ai.service.js');
     const verdict = await generateAIComparison(phones);
+    
+    if (verdict) {
+        await Comparison.findOneAndUpdate(
+            { slugs: sortedSlugs },
+            { 
+                $set: { ai_verdict: verdict },
+                $setOnInsert: { phones: phones.map(p => p._id) }
+            },
+            { upsert: true, new: true }
+        );
+    }
     
     res.status(200).json(new ApiResponse(200, { verdict }, "AI Comparison generated successfully"));
 });

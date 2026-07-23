@@ -17,6 +17,9 @@ const comparisonSchema = new mongoose.Schema(
             type: Number,
             default: 1,
         },
+        ai_verdict: {
+            type: String,
+        },
     },
     {
         timestamps: true,

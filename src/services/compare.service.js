@@ -7,7 +7,7 @@ export const comparePhonesList = async (phoneSlugs) => {
     }
     
     // Fetch all matching phones from DB
-    const phones = await Phone.find({ slug: { $in: phoneSlugs } });
+    const phones = await Phone.find({ slug: { $in: phoneSlugs }, approvalStatus: 'APPROVED' });
     
     // Map them for quick lookup
     const phonesMap = {};
@@ -27,7 +27,7 @@ export const trackComparison = async (phoneSlugs) => {
     // Sort slugs alphabetically to avoid A vs B and B vs A being different
     const sortedSlugs = [...phoneSlugs].sort();
     
-    const phones = await Phone.find({ slug: { $in: sortedSlugs } });
+    const phones = await Phone.find({ slug: { $in: sortedSlugs }, approvalStatus: 'APPROVED' });
     if (phones.length !== sortedSlugs.length) {
         // Some phones were not found, do not track
         return null;
@@ -49,5 +49,9 @@ export const getPopularComparisons = async (limit = 10) => {
     return await Comparison.find({})
         .sort({ hits: -1 })
         .limit(limit)
-        .populate('phones', 'slug name images brand_slug prices specs.display.size_inches specs.performance.ram_options_gb specs.performance.storage_options_gb specs.battery.capacity_mah specs.camera.rear_summary');
+        .populate({
+            path: 'phones',
+            match: { approvalStatus: 'APPROVED' },
+            select: 'slug name images brand_slug prices specs.display.size_inches specs.performance.ram_options_gb specs.performance.storage_options_gb specs.battery.capacity_mah specs.camera.rear_summary'
+        });
 };

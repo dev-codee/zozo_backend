@@ -2,7 +2,7 @@ import { Phone } from '../models/Phone.model.js';
 import { generatePhoneDescription } from './ai.service.js';
 
 export const getAllPhones = async (query) => {
-    let filter = {};
+    let filter = { approvalStatus: 'APPROVED' };
     
     // Handle budget / max_price filter
     if (query.max_price || query.min_price) {
@@ -40,12 +40,12 @@ export const getAllPhones = async (query) => {
 
 export const getPhoneBySlug = async (slug) => {
     // DB logic to fetch a single phone
-    const phone = await Phone.findOne({ slug });
+    const phone = await Phone.findOne({ slug, approvalStatus: 'APPROVED' });
     return phone;
 };
 
 export const getPhoneDescription = async (slug) => {
-    const phone = await Phone.findOne({ slug });
+    const phone = await Phone.findOne({ slug, approvalStatus: 'APPROVED' });
     if (!phone) return null;
 
     if (phone.description) {
@@ -63,5 +63,5 @@ export const getPhoneDescription = async (slug) => {
 };
 
 export const getPhonesByBrandSlug = async (brandSlug) => {
-    return await Phone.find({ brand_slug: brandSlug });
+    return await Phone.find({ brand_slug: brandSlug, approvalStatus: 'APPROVED' });
 };
