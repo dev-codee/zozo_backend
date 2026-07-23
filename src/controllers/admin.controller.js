@@ -68,7 +68,8 @@ export const createPhone = asyncHandler(async (req, res) => {
             action: 'CREATED',
             snapshot: newPhone.toObject()
         });
-        await AdminActivityLog.create({
+        // Paused staff change logs
+        /* await AdminActivityLog.create({
             adminId: req.adminUser._id,
             action: 'CREATE_PHONE',
             entityType: 'PHONE',
@@ -76,7 +77,7 @@ export const createPhone = asyncHandler(async (req, res) => {
             details: newPhone.name,
             ipAddress: req.ip,
             userAgent: req.headers['user-agent']
-        });
+        }); */
     }
 
     res.status(201).json(new ApiResponse(201, newPhone, "Phone created successfully"));
@@ -104,12 +105,13 @@ export const loginAdmin = asyncHandler(async (req, res) => {
         { expiresIn: '30d' }
     );
 
-    await AdminActivityLog.create({
+    // Paused staff change logs
+    /* await AdminActivityLog.create({
         adminId: admin._id,
         action: 'LOGIN',
         ipAddress: req.ip,
         userAgent: req.headers['user-agent']
-    });
+    }); */
 
     res.status(200).json(new ApiResponse(200, {
         token,
@@ -123,11 +125,25 @@ export const loginAdmin = asyncHandler(async (req, res) => {
 });
 
 export const getAllPhones = asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
     const phones = await Phone.find({}).sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .populate('createdBy', 'name')
         .populate('updatedBy', 'name')
         .populate('reviewer', 'name');
-    res.status(200).json(new ApiResponse(200, phones, "Phones fetched successfully"));
+        
+    const total = await Phone.countDocuments({});
+
+    res.status(200).json(new ApiResponse(200, {
+        phones,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        totalPhones: total
+    }, "Phones fetched successfully"));
 });
 
 export const deletePhone = asyncHandler(async (req, res) => {
@@ -183,7 +199,8 @@ export const updatePhone = asyncHandler(async (req, res) => {
             action: 'UPDATED',
             snapshot: previousPhone.toObject()
         });
-        await AdminActivityLog.create({
+        // Paused staff change logs
+        /* await AdminActivityLog.create({
             adminId: req.adminUser._id,
             action: 'UPDATE_PHONE',
             entityType: 'PHONE',
@@ -191,7 +208,7 @@ export const updatePhone = asyncHandler(async (req, res) => {
             details: phone.name,
             ipAddress: req.ip,
             userAgent: req.headers['user-agent']
-        });
+        }); */
     }
     
     res.status(200).json(new ApiResponse(200, phone, "Phone updated successfully"));
@@ -233,7 +250,8 @@ export const approvePhone = asyncHandler(async (req, res) => {
         snapshot: phone.toObject(),
         note: req.body.note || ''
     });
-    await AdminActivityLog.create({
+    // Paused staff change logs
+    /* await AdminActivityLog.create({
         adminId: req.adminUser._id,
         action: 'APPROVE_PHONE',
         entityType: 'PHONE',
@@ -241,7 +259,7 @@ export const approvePhone = asyncHandler(async (req, res) => {
         details: phone.name,
         ipAddress: req.ip,
         userAgent: req.headers['user-agent']
-    });
+    }); */
 
     res.status(200).json(new ApiResponse(200, phone, "Phone approved"));
 });
@@ -264,7 +282,8 @@ export const rejectPhone = asyncHandler(async (req, res) => {
         snapshot: phone.toObject(),
         note: req.body.note || ''
     });
-    await AdminActivityLog.create({
+    // Paused staff change logs
+    /* await AdminActivityLog.create({
         adminId: req.adminUser._id,
         action: 'REJECT_PHONE',
         entityType: 'PHONE',
@@ -272,7 +291,7 @@ export const rejectPhone = asyncHandler(async (req, res) => {
         details: phone.name,
         ipAddress: req.ip,
         userAgent: req.headers['user-agent']
-    });
+    }); */
 
     res.status(200).json(new ApiResponse(200, phone, "Phone rejected"));
 });
@@ -324,7 +343,8 @@ export const createTeamMember = asyncHandler(async (req, res) => {
 
     const member = await AdminUser.create({ username, email, password, name, role: role || 'EDITOR', permissions: permissions || [] });
 
-    await AdminActivityLog.create({
+    // Paused staff change logs
+    /* await AdminActivityLog.create({
         adminId: req.adminUser._id,
         action: 'CREATE_TEAM_MEMBER',
         entityType: 'TEAM_MEMBER',
@@ -332,7 +352,7 @@ export const createTeamMember = asyncHandler(async (req, res) => {
         details: `Created ${role || 'EDITOR'}: ${name}`,
         ipAddress: req.ip,
         userAgent: req.headers['user-agent']
-    });
+    }); */
 
     const memberObj = member.toObject();
     delete memberObj.password;
@@ -351,7 +371,8 @@ export const updateTeamMember = asyncHandler(async (req, res) => {
         return res.status(404).json(new ApiResponse(404, null, "Team member not found"));
     }
 
-    await AdminActivityLog.create({
+    // Paused staff change logs
+    /* await AdminActivityLog.create({
         adminId: req.adminUser._id,
         action: 'UPDATE_TEAM_MEMBER',
         entityType: 'TEAM_MEMBER',
@@ -359,7 +380,7 @@ export const updateTeamMember = asyncHandler(async (req, res) => {
         details: `Updated: ${member.name}`,
         ipAddress: req.ip,
         userAgent: req.headers['user-agent']
-    });
+    }); */
 
     res.status(200).json(new ApiResponse(200, member, "Team member updated"));
 });
@@ -377,7 +398,8 @@ export const deleteTeamMember = asyncHandler(async (req, res) => {
         return res.status(404).json(new ApiResponse(404, null, "Team member not found"));
     }
 
-    await AdminActivityLog.create({
+    // Paused staff change logs
+    /* await AdminActivityLog.create({
         adminId: req.adminUser._id,
         action: 'DELETE_TEAM_MEMBER',
         entityType: 'TEAM_MEMBER',
@@ -385,7 +407,7 @@ export const deleteTeamMember = asyncHandler(async (req, res) => {
         details: `Deleted: ${member.name}`,
         ipAddress: req.ip,
         userAgent: req.headers['user-agent']
-    });
+    }); */
 
     res.status(200).json(new ApiResponse(200, null, "Team member deleted"));
 });
