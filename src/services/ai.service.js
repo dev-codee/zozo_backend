@@ -21,13 +21,13 @@ Use the following specifications as a reference:
 ${JSON.stringify(specs, null, 2)}
 
 The description MUST follow these guidelines:
-- Write 3 to 4 well-structured paragraphs.
-- Maintain a premium, professional, and objective tone suitable for a top-tier e-commerce platform. Avoid overly fluffy marketing jargon.
+- Write in proper bullet points (using bullet character •).
+- Keep it to the point, using simple English and a professional tone suitable for a top-tier e-commerce platform. Avoid fluffy marketing jargon.
 - Highlight the standout features (e.g., camera capabilities, processing power, battery endurance, display quality).
 - Explicitly deduce and explain extra features or capabilities that are typical for this phone's tier but might not be fully detailed in the raw specs (e.g., AI camera enhancements, gaming performance, software ecosystem benefits, build quality, and real-world usage scenarios).
 - Make sure to get straight to the point without generic introductions.
 - DO NOT use generic placeholders or mention that you are an AI.
-- Format the response in plain text. DO NOT use markdown symbols like *, #, -, or bold/italic formatting.
+- Format the response cleanly with each point on a new line starting with •. Do not use other markdown symbols.
         `;
 
         const message = await anthropic.messages.create({

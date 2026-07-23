@@ -21,13 +21,20 @@ export const getAllPhones = async (query) => {
     if (query.sort === 'latest') {
         sortQuery = { release_date: -1 };
     } else if (query.sort === 'trending') {
-        // Mock trending by sorting by rating count or something if available
-        // For now, let's just sort randomly or by updated_at
         sortQuery = { updated_at: -1 };
     }
 
+    let limit = 20;
+    if (query.limit) {
+        if (query.limit === 'all') {
+            limit = 0; // 0 means no limit in mongoose
+        } else {
+            limit = parseInt(query.limit, 10) || 20;
+        }
+    }
+
     // DB logic to fetch and filter phones
-    return await Phone.find(filter).sort(sortQuery).limit(20);
+    return await Phone.find(filter).sort(sortQuery).limit(limit);
 };
 
 

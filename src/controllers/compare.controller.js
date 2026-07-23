@@ -49,3 +49,32 @@ export const getAIComparison = asyncHandler(async (req, res) => {
     
     res.status(200).json(new ApiResponse(200, { verdict }, "AI Comparison generated successfully"));
 });
+
+export const trackComparison = asyncHandler(async (req, res) => {
+    const { slugs } = req.body;
+    
+    let slugsArray = [];
+    if (slugs) {
+        slugsArray = typeof slugs === 'string' ? slugs.split(',') : slugs;
+    }
+    
+    slugsArray = slugsArray.map(s => s.trim()).filter(s => s.length > 0);
+    
+    if (slugsArray.length < 2) {
+        return res.status(400).json(new ApiResponse(400, null, "At least two phones are required for tracking"));
+    }
+    
+    const comparison = await compareService.trackComparison(slugsArray);
+    if (!comparison) {
+        return res.status(404).json(new ApiResponse(404, null, "Phones not found"));
+    }
+    
+    res.status(200).json(new ApiResponse(200, comparison, "Comparison tracked successfully"));
+});
+
+export const getPopularComparisons = asyncHandler(async (req, res) => {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const popular = await compareService.getPopularComparisons(limit);
+    
+    res.status(200).json(new ApiResponse(200, popular, "Popular comparisons retrieved successfully"));
+});
