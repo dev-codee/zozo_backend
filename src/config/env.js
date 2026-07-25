@@ -15,6 +15,7 @@ export default {
     MONGODB_URI: process.env.MONGODB_URI,
     JWT_SECRET: process.env.JWT_SECRET,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    AI_MODEL: process.env.AI_MODEL,
     NODE_ENV: process.env.NODE_ENV || 'development',
     CLOUDINARY: {
         CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,

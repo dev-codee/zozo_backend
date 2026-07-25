@@ -9,6 +9,7 @@ import authRoutes from './auth.routes.js';
 import homeRoutes from './home.routes.js';
 import activityRoutes from './activity.routes.js';
 import userRoutes from './user.routes.js';
+import voteRoutes from './vote.routes.js';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/admin', adminRoutes);
 router.use('/auth', authRoutes);
 router.use('/activity', activityRoutes);
 router.use('/user', userRoutes);
+router.use('/votes', voteRoutes);
 
 export default router;
