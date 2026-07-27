@@ -16,6 +16,49 @@ export const getAllPhones = async (query) => {
         const brands = query.brand.split(',').map(b => b.trim());
         filter.brand_slug = { $in: brands };
     }
+
+    if (query.ram) {
+        const rams = query.ram.split(',').map(r => parseInt(r.trim(), 10)).filter(r => !isNaN(r));
+        if (rams.length > 0) {
+            filter['specs.performance.ram_options_gb'] = { $in: rams };
+        }
+    }
+
+    if (query.processor) {
+        const processors = query.processor.split(',').map(p => new RegExp(p.trim(), 'i'));
+        filter['specs.performance.chipset'] = { $in: processors };
+    }
+
+    if (query.display) {
+        const displays = query.display.split(',').map(d => new RegExp(d.trim(), 'i'));
+        filter['specs.display.type'] = { $in: displays };
+    }
+
+    if (query.camera) {
+        const minMpArray = query.camera.split(',').map(c => parseInt(c.match(/\d+/)?.[0], 10)).filter(n => !isNaN(n));
+        if (minMpArray.length > 0) {
+            const lowestMp = Math.min(...minMpArray);
+            filter['specs.camera.rear'] = { $elemMatch: { megapixels: { $gte: lowestMp } } };
+        }
+    }
+
+    if (query.network) {
+        const networks = query.network.split(',').map(n => new RegExp(n.trim(), 'i'));
+        filter['specs.connectivity.network'] = { $in: networks };
+    }
+
+    if (query.battery) {
+        const minMahArray = query.battery.split(',').map(b => parseInt(b.match(/\d+/)?.[0], 10)).filter(n => !isNaN(n));
+        if (minMahArray.length > 0) {
+            const lowestMah = Math.min(...minMahArray);
+            filter['specs.battery.capacity_mah'] = { $gte: lowestMah };
+        }
+    }
+
+    if (query.video) {
+        const videos = query.video.split(',').map(v => new RegExp(v.trim(), 'i'));
+        filter['specs.camera.video_recording'] = { $in: videos };
+    }
     
     let sortQuery = {};
     if (query.sort === 'latest') {
