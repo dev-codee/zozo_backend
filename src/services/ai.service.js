@@ -278,7 +278,7 @@ ${schemaString}
 `;
 
     const message = await anthropic.messages.create({
-      model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
+      model: env.AI_MODEL,
       max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     });

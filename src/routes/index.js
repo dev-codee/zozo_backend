@@ -10,6 +10,9 @@ import homeRoutes from './home.routes.js';
 import activityRoutes from './activity.routes.js';
 import userRoutes from './user.routes.js';
 import voteRoutes from './vote.routes.js';
+import categoryRoutes from './category.routes.js';
+import blogRoutes from './blog.routes.js';
+import pageRoutes from './page.routes.js';
 
 const router = Router();
 
@@ -24,5 +27,8 @@ router.use('/auth', authRoutes);
 router.use('/activity', activityRoutes);
 router.use('/user', userRoutes);
 router.use('/votes', voteRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/blogs', blogRoutes);
+router.use('/pages', pageRoutes);
 
 export default router;
