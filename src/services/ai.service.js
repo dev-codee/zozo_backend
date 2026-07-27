@@ -283,9 +283,33 @@ ${schemaString}
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const rawText = message.content[0].text;
-    // Basic cleanup in case Claude adds markdown
-    const jsonText = rawText.replace(/^[`\s]*json/i, '').replace(/[`\s]*$/i, '').trim();
+    let rawText = '';
+    if (typeof message === 'string') {
+      rawText = message;
+    } else if (message.content) {
+      if (Array.isArray(message.content)) {
+        const textBlock = message.content.find(b => b.type === 'text');
+        rawText = textBlock ? textBlock.text : (message.content[0]?.text || '');
+      } else {
+        rawText = typeof message.content === 'string' ? message.content : (message.content.text || '');
+      }
+    } else if (message.choices && message.choices[0]?.message?.content) {
+      rawText = message.choices[0].message.content;
+    }
+
+    if (!rawText) {
+      console.error("AI response did not contain text. Raw message:", JSON.stringify(message));
+      return null;
+    }
+
+    // Safely extract JSON between the first { and last }
+    const match = rawText.match(/\{[\s\S]*\}/);
+    if (!match) {
+      console.error("Could not find JSON object in AI response:", rawText);
+      return null;
+    }
+
+    const jsonText = match[0];
     return JSON.parse(jsonText);
   } catch (error) {
     console.error("Error generating AI data from Anthropic:", error);
