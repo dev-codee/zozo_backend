@@ -70,10 +70,11 @@ export const googleLogin = asyncHandler(async (req, res) => {
         );
 
         // Set HTTP-Only Cookie
+        const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('token', jwtToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : false, // False removes SameSite completely in dev
             maxAge: expiresInDays * 24 * 60 * 60 * 1000
         });
 
