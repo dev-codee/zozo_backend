@@ -52,6 +52,6 @@ export const getPopularComparisons = async (limit = 10) => {
         .populate({
             path: 'phones',
             match: { approvalStatus: 'APPROVED' },
-            select: 'slug name images brand_slug prices specs.display.size_inches specs.performance.ram_options_gb specs.performance.storage_options_gb specs.battery.capacity_mah specs.camera.rear_summary'
+            select: 'slug name images brand_slug prices price_pkr specs.display.size_inches specs.performance.ram_options_gb specs.performance.storage_options_gb specs.battery.capacity_mah specs.camera.rear_summary'
         });
 };

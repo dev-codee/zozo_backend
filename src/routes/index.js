@@ -13,6 +13,7 @@ import voteRoutes from './vote.routes.js';
 import categoryRoutes from './category.routes.js';
 import blogRoutes from './blog.routes.js';
 import pageRoutes from './page.routes.js';
+import reviewRoutes from './review.routes.js';
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use('/votes', voteRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/blogs', blogRoutes);
 router.use('/pages', pageRoutes);
+router.use('/reviews', reviewRoutes);
 
 export default router;
