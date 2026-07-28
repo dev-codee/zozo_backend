@@ -7,6 +7,10 @@ const pageSchema = new mongoose.Schema({
   
   status: { type: String, enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'], default: 'DRAFT' },
   
+  pageType: { type: String, enum: ['STANDALONE', 'PARENT', 'CHILD'], default: 'STANDALONE' },
+  placement: { type: String, enum: ['HEADER', 'FOOTER', 'BOTH', 'NONE'], default: 'NONE' },
+  parentPage: { type: mongoose.Schema.Types.ObjectId, ref: 'Page', default: null },
+
   seo: {
     meta_title: String,
     meta_description: String,
