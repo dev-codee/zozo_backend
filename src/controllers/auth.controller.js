@@ -70,7 +70,10 @@ export const googleLogin = asyncHandler(async (req, res) => {
         );
 
         // Set HTTP-Only Cookie
-        const isProduction = process.env.NODE_ENV === 'production';
+        // Dynamically determine if we are in production or cross-origin
+        const origin = req.get('origin');
+        const isProduction = process.env.NODE_ENV === 'production' || (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1'));
+        
         res.cookie('token', jwtToken, {
             httpOnly: true,
             secure: isProduction,
