@@ -50,11 +50,12 @@ export const createReview = async (req, res, next) => {
   try {
     const { phoneId, rating, comment } = req.body;
     const userName = req.user?.name;
+    const userId = req.user?._id;
 
-    if (!phoneId || !userName || !rating || !comment) {
+    if (!phoneId || !userName || !rating || !comment || !userId) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide phoneId, rating, and comment',
+        message: 'Please provide phoneId, rating, comment, and ensure you are logged in.',
       });
     }
 
@@ -73,9 +74,19 @@ export const createReview = async (req, res, next) => {
       });
     }
 
+    // Check if user already reviewed this phone
+    const existingReview = await Review.findOne({ phoneId, userId });
+    if (existingReview) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already submitted a review for this phone',
+      });
+    }
+
     // Create the review
     const review = await Review.create({
       phoneId,
+      userId,
       userName,
       rating: Number(rating),
       comment

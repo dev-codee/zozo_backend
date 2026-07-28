@@ -6,6 +6,10 @@ const reviewSchema = new mongoose.Schema({
     ref: 'Phone',
     required: true,
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
   userName: {
     type: String,
     required: true,
