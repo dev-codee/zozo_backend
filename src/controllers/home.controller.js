@@ -8,7 +8,7 @@ export const getHomeData = asyncHandler(async (req, res) => {
     const trendingPhones = await Phone.find({ approvalStatus: 'APPROVED' })
         .sort({ 'rating.average': -1, createdAt: -1 })
         .limit(8)
-        .select('slug name brand_slug images specs.performance.ram_options_gb specs.performance.storage_options_gb prices rating status')
+        .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices rating status')
         .lean();
 
     // Fetch all brands
@@ -20,7 +20,7 @@ export const getHomeData = asyncHandler(async (req, res) => {
     const latestPhones = await Phone.find({ approvalStatus: 'APPROVED' })
         .sort({ createdAt: -1 })
         .limit(4)
-        .select('slug name brand_slug images specs.performance.ram_options_gb specs.performance.storage_options_gb prices rating status')
+        .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices rating status')
         .lean();
 
     res.status(200).json(new ApiResponse(200, {

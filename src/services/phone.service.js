@@ -67,17 +67,30 @@ export const getAllPhones = async (query) => {
         sortQuery = { updated_at: -1 };
     }
 
-    let limit = 20;
+    let limit = 15;
     if (query.limit) {
         if (query.limit === 'all') {
             limit = 0; // 0 means no limit in mongoose
         } else {
-            limit = parseInt(query.limit, 10) || 20;
+            limit = parseInt(query.limit, 10) || 15;
         }
     }
 
-    // DB logic to fetch and filter phones
-    return await Phone.find(filter).sort(sortQuery).limit(limit);
+    const page = parseInt(query.page, 10) || 1;
+    const skip = limit > 0 ? (page - 1) * limit : 0;
+
+    const total = await Phone.countDocuments(filter);
+    const phones = await Phone.find(filter).sort(sortQuery).skip(skip).limit(limit);
+
+    return {
+        phones,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: limit > 0 ? Math.ceil(total / limit) : 1
+        }
+    };
 };
 
 
