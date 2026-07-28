@@ -3,14 +3,14 @@ import { generatePhoneDescription } from './ai.service.js';
 
 export const getAllPhones = async (query) => {
     let filter = { approvalStatus: 'APPROVED' };
-    
+
     // Handle budget / max_price filter
     if (query.max_price || query.min_price) {
         filter['prices.price_pkr'] = {};
         if (query.min_price) filter['prices.price_pkr'].$gte = Number(query.min_price);
         if (query.max_price) filter['prices.price_pkr'].$lte = Number(query.max_price);
     }
-    
+
     // Handle brand filter (comma separated slugs)
     if (query.brand) {
         const brands = query.brand.split(',').map(b => b.trim());
@@ -59,7 +59,7 @@ export const getAllPhones = async (query) => {
         const videos = query.video.split(',').map(v => new RegExp(v.trim(), 'i'));
         filter['specs.camera.video_recording'] = { $in: videos };
     }
-    
+
     let sortQuery = {};
     if (query.sort === 'latest') {
         sortQuery = { release_date: -1 };
