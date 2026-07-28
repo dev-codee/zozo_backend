@@ -8,6 +8,9 @@ import mongoose from 'mongoose';
 export const getPhoneReviews = async (req, res, next) => {
   try {
     const { phoneId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 6;
+    const skip = (page - 1) * limit;
 
     if (!mongoose.Types.ObjectId.isValid(phoneId)) {
       return res.status(400).json({
@@ -18,11 +21,22 @@ export const getPhoneReviews = async (req, res, next) => {
 
     const reviews = await Review.find({ phoneId })
       .sort({ createdAt: -1 })
-      .limit(50); // Get latest 50 reviews
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Review.countDocuments({ phoneId });
 
     res.status(200).json({
       success: true,
-      data: reviews,
+      data: {
+        reviews,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      },
     });
   } catch (error) {
     next(error);
@@ -34,12 +48,21 @@ export const getPhoneReviews = async (req, res, next) => {
 // @access  Public
 export const createReview = async (req, res, next) => {
   try {
-    const { phoneId, userName, rating, comment } = req.body;
+    const { phoneId, rating, comment } = req.body;
+    const userName = req.user?.name;
 
     if (!phoneId || !userName || !rating || !comment) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide phoneId, userName, rating, and comment',
+        message: 'Please provide phoneId, rating, and comment',
+      });
+    }
+
+    const linkRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9.-]+\.(com|org|net|pk|co|us|io|me)(\/[^\s]*)?)/i;
+    if (linkRegex.test(comment)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Links are not allowed in the review comment',
       });
     }
 
