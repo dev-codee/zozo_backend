@@ -138,6 +138,64 @@ The comparison MUST follow these guidelines:
   }
 };
 
+export const generatePhoneSEO = async (phoneData) => {
+  if (!anthropic) {
+    console.warn("Skipping AI SEO generation because API key is missing.");
+    return null;
+  }
+
+  try {
+    const prompt = `
+You are an expert SEO specialist for mobile phones in Pakistan. Given the following phone data, generate highly optimized SEO fields.
+
+Phone Name: ${phoneData.name}
+Brand: ${phoneData.brand_slug}
+Price PKR: ${phoneData.price_pkr || 'N/A'}
+Specs: ${JSON.stringify(phoneData.specs, null, 2)}
+
+Return a valid JSON object with the following schema exactly (no markdown formatting, just raw JSON). Ensure all arrays contain strings except for ai_faq which contains objects.
+
+{
+  "ai_seo_title": "Optimized title (under 60 chars) including 'Price in Pakistan'",
+  "ai_meta_description": "Compelling meta description (under 160 chars)",
+  "ai_faq": [
+    { "question": "Question 1", "answer": "Answer 1" },
+    { "question": "Question 2", "answer": "Answer 2" },
+    { "question": "Question 3", "answer": "Answer 3" },
+    { "question": "Question 4", "answer": "Answer 4" },
+    { "question": "Question 5", "answer": "Answer 5" }
+  ],
+  "ai_summary": "A 2-3 sentence summary of the phone",
+  "ai_pros": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5"],
+  "ai_cons": ["Con 1", "Con 2", "Con 3", "Con 4", "Con 5"],
+  "ai_buying_advice": "A short paragraph on who should buy this phone and if it's worth the price.",
+  "ai_snippet": "A very short 1-sentence featured snippet highlighting the best feature.",
+  "ai_suggested_tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "ai_keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+}
+`;
+
+    const message = await anthropic.messages.create({
+      model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    let rawJSON = message.content[0].text;
+    // Attempt to strip any markdown code blocks
+    if (rawJSON.startsWith('\`\`\`json')) {
+      rawJSON = rawJSON.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '');
+    } else if (rawJSON.startsWith('\`\`\`')) {
+      rawJSON = rawJSON.replace(/^\`\`\`/, '').replace(/\`\`\`$/, '');
+    }
+
+    return JSON.parse(rawJSON.trim());
+  } catch (error) {
+    console.error("Error generating SEO from Anthropic:", error);
+    return null;
+  }
+};
+
 export const generatePhoneDataAdmin = async (phoneName) => {
   if (!anthropic) {
     console.warn("Skipping AI data generation because API key is missing.");
@@ -262,7 +320,8 @@ export const generatePhoneDataAdmin = async (phoneName) => {
       },
       "colors": "Titanium Black, Titanium Gray"
     }
-  }
+  },
+  "tags": ["gamers", "camera", "flagship"] // pick from: gamers, students, camera, battery, flagship, mid-range, budget (only those that strictly apply)
 }
         `;
 

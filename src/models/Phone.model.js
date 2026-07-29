@@ -131,8 +131,31 @@ const phoneSchema = new mongoose.Schema({
     },
 
     seo: {
+        // Manual SEO Fields
         meta_title: String,
         meta_description: String,
+        meta_keywords: String,
+        focus_keyword: String,
+        long_tail_keywords: [String],
+        canonical_url: String,
+        og_title: String,
+        og_description: String,
+        og_image: String,
+        // AI-Generated SEO Fields
+        ai_seo_title: String,
+        ai_meta_description: String,
+        ai_faq: [{
+            question: { type: String },
+            answer: { type: String },
+            _id: false,
+        }],
+        ai_summary: String,
+        ai_pros: [String],
+        ai_cons: [String],
+        ai_buying_advice: String,
+        ai_snippet: String,
+        ai_suggested_tags: [String],
+        ai_keywords: [String],
     },
 
     sources: [sourceRefSchema],

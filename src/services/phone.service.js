@@ -60,6 +60,11 @@ export const getAllPhones = async (query) => {
         filter['specs.camera.video_recording'] = { $in: videos };
     }
 
+    if (query.category) {
+        const categories = query.category.split(',').map(c => new RegExp(c.trim(), 'i'));
+        filter['tags'] = { $in: categories };
+    }
+
     let sortQuery = {};
     if (query.sort === 'latest') {
         sortQuery = { release_date: -1 };
@@ -120,4 +125,55 @@ export const getPhoneDescription = async (slug) => {
 
 export const getPhonesByBrandSlug = async (brandSlug) => {
     return await Phone.find({ brand_slug: brandSlug, approvalStatus: 'APPROVED' });
+};
+
+export const getRelatedPhones = async (slug) => {
+    const phone = await Phone.findOne({ slug, approvalStatus: 'APPROVED' });
+    if (!phone) return null;
+
+    const baseFilter = { slug: { $ne: slug }, approvalStatus: 'APPROVED' };
+
+    // Related by Processor
+    let byProcessor = [];
+    const chipset = phone.specs?.performance?.chipset;
+    if (chipset) {
+        // Extract the main part of the chipset (e.g. "Snapdragon 8 Gen 3" from "Qualcomm Snapdragon 8 Gen 3")
+        let chipsetMatch = chipset;
+        if (chipset.includes('Snapdragon')) {
+            const match = chipset.match(/(Snapdragon[^(\n]+)/);
+            if (match) chipsetMatch = match[1].trim();
+        } else if (chipset.includes('Apple')) {
+            const match = chipset.match(/(Apple[^(\n]+)/);
+            if (match) chipsetMatch = match[1].trim();
+        } else if (chipset.includes('Dimensity')) {
+            const match = chipset.match(/(Dimensity[^(\n]+)/);
+            if (match) chipsetMatch = match[1].trim();
+        }
+
+        byProcessor = await Phone.find({
+            ...baseFilter,
+            'specs.performance.chipset': new RegExp(chipsetMatch, 'i')
+        }).limit(5);
+    }
+
+    // Related by Network (5G vs 4G)
+    let byNetwork = [];
+    const network = phone.specs?.connectivity?.network || "";
+    let networkMatch = "";
+    if (network.includes("5G")) networkMatch = "5G";
+    else if (network.includes("4G") || network.includes("LTE")) networkMatch = "4G";
+    
+    if (networkMatch) {
+        byNetwork = await Phone.find({
+            ...baseFilter,
+            'specs.connectivity.network': new RegExp(networkMatch, 'i')
+        }).limit(5);
+    }
+
+    return {
+        by_processor: byProcessor,
+        by_network: byNetwork,
+        comparisons: [], // To be implemented when Comparison system is built
+        blogs: [] // To be implemented when Blog system is built
+    };
 };

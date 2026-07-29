@@ -6,7 +6,9 @@ import { AdminUser } from '../models/AdminUser.model.js';
 import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
 import { slugify } from '../utils/slugify.js';
+import { generatePhoneDataAdmin, generatePhoneSEO } from '../services/ai.service.js';
 import jwt from 'jsonwebtoken';
+
 export const getDashboardStats = asyncHandler(async (req, res) => {
     // Calls admin services to gather stats
     const totalPhones = await Phone.countDocuments();
@@ -56,6 +58,14 @@ export const createPhone = asyncHandler(async (req, res) => {
         } else {
             phoneData.approvalStatus = phoneData.approvalStatus || 'APPROVED';
         }
+    }
+
+    // Auto-generate image alt text
+    if (phoneData.images && Array.isArray(phoneData.images)) {
+        phoneData.images = phoneData.images.map((img, idx) => ({
+            ...img,
+            alt_text: img.alt_text || `${phoneData.name} Price in Pakistan - ZOZO`
+        }));
     }
 
     const newPhone = await Phone.create(phoneData);
@@ -199,6 +209,15 @@ export const updatePhone = asyncHandler(async (req, res) => {
         updateData.updatedBy = req.adminUser._id;
     }
     
+    // Auto-generate image alt text on update
+    if (updateData.images && Array.isArray(updateData.images)) {
+        const phoneName = updateData.name || previousPhone.name;
+        updateData.images = updateData.images.map((img, idx) => ({
+            ...img,
+            alt_text: img.alt_text || `${phoneName} Price in Pakistan - ZOZO`
+        }));
+    }
+
     const phone = await Phone.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
     // Create revision
@@ -238,6 +257,20 @@ export const aiFillPhone = asyncHandler(async (req, res) => {
     }
     
     res.status(200).json(new ApiResponse(200, aiData, "AI data generated successfully"));
+});
+
+export const aiFillPhoneSEO = asyncHandler(async (req, res) => {
+    const { phoneName, brand_slug, price_pkr, specs } = req.body;
+    if (!phoneName) {
+        return res.status(400).json(new ApiResponse(400, null, "phoneName is required"));
+    }
+
+    const aiSEOData = await generatePhoneSEO({ name: phoneName, brand_slug, price_pkr, specs });
+    if (!aiSEOData) {
+        return res.status(500).json(new ApiResponse(500, null, "Failed to generate AI SEO data. Ensure AI API key is set."));
+    }
+
+    res.status(200).json(new ApiResponse(200, aiSEOData, "AI SEO generated successfully"));
 });
 
 // ─── APPROVAL WORKFLOW ─────────────────────────────────────────────────────────

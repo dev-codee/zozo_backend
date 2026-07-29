@@ -18,3 +18,11 @@ export const getPhoneDescription = asyncHandler(async (req, res) => {
     const description = await phoneService.getPhoneDescription(req.params.slug);
     res.status(200).json(new ApiResponse(200, { description }, "Description fetched successfully"));
 });
+
+export const getRelatedPhones = asyncHandler(async (req, res) => {
+    const related = await phoneService.getRelatedPhones(req.params.slug);
+    if (!related) {
+        return res.status(404).json(new ApiResponse(404, null, "Phone not found"));
+    }
+    res.status(200).json(new ApiResponse(200, related, "Related phones fetched successfully"));
+});

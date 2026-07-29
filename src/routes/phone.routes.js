@@ -7,5 +7,6 @@ const router = Router();
 router.get('/', phoneController.getPhones);
 router.get('/:slug', phoneController.getPhoneBySlug);
 router.get('/:slug/description', phoneController.getPhoneDescription);
+router.get('/:slug/related', phoneController.getRelatedPhones);
 
 export default router;
