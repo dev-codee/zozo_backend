@@ -14,6 +14,7 @@ import categoryRoutes from './category.routes.js';
 import blogRoutes from './blog.routes.js';
 import pageRoutes from './page.routes.js';
 import reviewRoutes from './review.routes.js';
+import adRoutes from './ad.routes.js';
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use('/categories', categoryRoutes);
 router.use('/blogs', blogRoutes);
 router.use('/pages', pageRoutes);
 router.use('/reviews', reviewRoutes);
+router.use('/ads', adRoutes);
 
 export default router;
