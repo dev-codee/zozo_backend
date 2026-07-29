@@ -176,23 +176,42 @@ Return a valid JSON object with the following schema exactly (no markdown format
 `;
 
     const message = await anthropic.messages.create({
-      model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
+      model: env.AI_MODEL || 'claude-sonnet-5',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     });
 
-    let rawJSON = message.content[0].text;
-    // Attempt to strip any markdown code blocks
-    if (rawJSON.startsWith('\`\`\`json')) {
-      rawJSON = rawJSON.replace(/^\`\`\`json/, '').replace(/\`\`\`$/, '');
-    } else if (rawJSON.startsWith('\`\`\`')) {
-      rawJSON = rawJSON.replace(/^\`\`\`/, '').replace(/\`\`\`$/, '');
+    let rawJSON = '';
+    if (typeof message === 'string') {
+      rawJSON = message;
+    } else if (message.content) {
+      if (Array.isArray(message.content)) {
+        const textBlock = message.content.find(b => b.type === 'text');
+        rawJSON = textBlock ? textBlock.text : (message.content[0]?.text || '');
+      } else {
+        rawJSON = typeof message.content === 'string' ? message.content : (message.content.text || '');
+      }
+    } else if (message.choices && message.choices[0]?.message?.content) {
+      rawJSON = message.choices[0].message.content;
     }
 
-    return JSON.parse(rawJSON.trim());
+    if (!rawJSON) {
+      console.error("AI response did not contain text. Raw message:", JSON.stringify(message));
+      throw new Error("Empty response from AI");
+    }
+
+    // Safely extract JSON between the first { and last }
+    const match = rawJSON.match(/\{[\s\S]*\}/);
+    if (!match) {
+      console.error("Could not find JSON object in AI response:", rawJSON);
+      throw new Error("Failed to parse JSON from AI response");
+    }
+
+    const jsonText = match[0];
+    return JSON.parse(jsonText);
   } catch (error) {
     console.error("Error generating SEO from Anthropic:", error);
-    return null;
+    throw new Error(error.message || "Failed to generate AI SEO data");
   }
 };
 
@@ -337,7 +356,7 @@ ${schemaString}
 `;
 
     const message = await anthropic.messages.create({
-      model: env.AI_MODEL,
+      model: env.AI_MODEL || 'claude-sonnet-5',
       max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     });
@@ -371,7 +390,7 @@ ${schemaString}
     const jsonText = match[0];
     return JSON.parse(jsonText);
   } catch (error) {
-    console.error("Error generating AI data from Anthropic:", error);
-    return null;
+    console.error("Error generating data from Anthropic:", error);
+    throw new Error(error.message || "Failed to generate AI Phone data");
   }
 };
