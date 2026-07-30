@@ -26,62 +26,48 @@ export const generatePhoneDescription = async (phoneName, specs, tags = []) => {
       ));
 
     const prompt = `
-You are an expert mobile technology reviewer. Write a highly detailed, professional, and comprehensive product overview/review for the smartphone "${phoneName}".
+You are a senior smartphone reviewer for a consumer tech buying guide.
+Write an honest, no-fluff review for: **${phoneName}**
+
 Use the following specifications as a reference:
 ${JSON.stringify(specs, null, 2)}
 
-Flagship Status: ${isFlagship ? 'This is a FLAGSHIP smartphone. Tailor the review to judge it by flagship standards (highest expectations for camera, performance, software updates, and build quality).' : 'This is a mid-range/budget smartphone. Adjust expectations accordingly.'}
+Before writing, first think through:
+1. Who is the exact buyer for this phone? (skill level, budget, primary use case)
+2. What are the 3-5 decision factors that actually matter for this phone (not every spec, only the ones that change the buying decision)
+3. What are 2-3 real, currently-available alternatives in the same price bracket?
 
-Your response must contain exactly the following sections with their corresponding headings. Keep each section concise, to the point, and highly informative:
+Then write the review exactly with this structure:
 
-- "## Quick Verdict for **${phoneName}**"
-Provide a highly concise summary (2-3 sentences max) of the phone's strengths, weaknesses, and target audience.
+- "## Quick Verdict"
+One line summarizing who should buy this and who should avoid it. No fluff.
 
-- "## Design and Build Quality of **${phoneName}**"
-Provide 3-4 highly concise, punchy bullet points covering materials, build quality, IP rating, and ergonomics.
+- "## Who it's actually for"
+Be specific, not "great for everyone". e.g., "Mobile gamers on a budget" or "Photography enthusiasts who don't want to carry a DSLR".
 
-- "## Display of **${phoneName}**"
-Provide 3-4 highly concise bullet points covering screen tech, resolution, brightness, refresh rate, and viewing experience.
+- "## Key Strengths"
+Provide 3-5 concrete strengths with numbers where possible (battery hours, benchmark scores, camera sensor size, charging speeds, price-to-spec ratio). Use bullet points (using the - character).
 
-- "## Performance of **${phoneName}**"
-Provide 3-5 highly concise bullet points examining the processor, RAM, storage, and daily responsiveness.
+- "## Honest Trade-offs"
+Provide 2-3 honest trade-offs or dealbreakers — do not write purely positive copy. Use bullet points (using the - character).
 
-- "## Camera of **${phoneName}**"
-Provide 4-5 highly concise bullet points analyzing rear/front sensors, image quality, zoom, and video capabilities.
+- "## Top Alternatives"
+A quick bulleted list of 2-3 alternatives, stating why someone might buy them instead. Use bullet points.
 
-- "## Battery of **${phoneName}**"
-Provide 3-4 highly concise bullet points discussing battery capacity, charging speeds, and expected real-world battery life.
-
-- "## Software of **${phoneName}**"
-Provide 3-4 highly concise bullet points covering OS, UI, features, and update promises.
-
-- "## Audio of **${phoneName}**"
-Provide 2-3 highly concise bullet points evaluating speaker setup and audio features.
-
-- "## Connectivity"
-Provide 3-4 highly concise bullet points detailing 5G, Wi-Fi, Bluetooth, NFC, and USB options.
-
-- "## Gaming"
-Provide 3-4 highly concise bullet points analyzing frame rates, thermals, and performance in high-end titles.
-
-- "## Benchmarks"
-Provide 2-3 highly concise bullet points referencing AnTuTu/Geekbench expectations typical for this hardware.
+- "## How we evaluated"
+A short paragraph explaining the criteria used to judge this phone.
 
 - "## FAQs" 
 Generate a list of exactly 5 common questions and answers about this phone. Format them strictly as Q&A pairs (e.g. "Q: Does it support eSIM?\nA: Yes, it supports...").
 
-- "## Pros & Cons" (near the bottom)
+- "## Pros & Cons" (must be the final section)
 Under the heading "## Pros & Cons", list Pros (at least 4 bullet points starting with "+ ") and Cons (at least 3 bullet points starting with "- "). Do not mix them; write all Pros first, then all Cons.
 
-- "## **${phoneName}** Best For" (at the very bottom)
-Under the heading "## **${phoneName}** Best For", write a concise paragraph (30-50 words) outlining what this phone is best suited for (e.g. intensive gaming, photography, long battery life, general day-to-day tasks, etc.) based on its key strengths.
-
-Formatting Guidelines:
-- Start each section with its heading name formatted as a markdown level 2 heading (e.g., "## Design and Build Quality of **${phoneName}**") on a new line. Do NOT include section numbers (like "1. ", "2. ", etc.) in the heading text.
-- Wherever you reference or write the phone model name "${phoneName}" in the headings or paragraphs, always format it in bold using double asterisks (e.g., "**${phoneName}**").
-- Do not use generic placeholders or mention you are an AI.
-- Ensure the tone is objective, professional, and authoritative.
-- IMPORTANT: Use bullet points (using the - character) for ALL sections (except Quick Verdict and Best For). Keep every bullet point strictly under 15 words. Nobody reads long paragraphs.
+Constraints:
+- No generic filler phrases ("great choice for anyone," "packed with features").
+- Every claim about performance needs a concrete number or comparison point based on the provided specs.
+- Write for a reader who is considering this specific phone — they need to know if it's the right pick or if they should look elsewhere.
+- Format the response using clean Markdown with level 2 (##) headings for each section.
 `;
 
     const message = await anthropic.messages.create({
