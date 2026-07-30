@@ -65,11 +65,19 @@ export const getAllPhones = async (query) => {
         filter['tags'] = { $in: categories };
     }
 
+    if (query.status) {
+        filter.status = query.status;
+    }
+
     let sortQuery = {};
     if (query.sort === 'latest') {
         sortQuery = { release_date: -1 };
     } else if (query.sort === 'trending') {
         sortQuery = { updated_at: -1 };
+    } else if (query.sort === 'price_asc') {
+        sortQuery = { 'prices.price_pkr': 1 };
+    } else if (query.sort === 'price_desc') {
+        sortQuery = { 'prices.price_pkr': -1 };
     }
 
     let limit = 15;
