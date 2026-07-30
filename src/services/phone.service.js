@@ -1,6 +1,20 @@
 import { Phone } from '../models/Phone.model.js';
 import { generatePhoneDescription } from './ai.service.js';
 
+const listProjection = {
+    name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
+    price_pkr: 1, prices: 1, status: 1, release_date: 1, 
+    rating: 1, description: 1, updated_at: 1,
+    'specs.performance.chipset': 1, 'specs.performance.ram_options_gb': 1, 'specs.performance.storage_options_gb': 1,
+    'specs.camera.rear_summary': 1, 'specs.camera.front_summary': 1,
+    'specs.battery.capacity_mah': 1, 'specs.battery.charging_watts': 1,
+    'specs.display.size_inches': 1, 'specs.display.type': 1,
+    'specs.extra_specs.features_listing.screen_size': 1, 
+    'specs.extra_specs.battery_detailed.capacity': 1, 
+    'specs.extra_specs.cameras_detailed.mp': 1, 
+    'specs.extra_specs.cameras_detailed.front_mp': 1
+};
+
 export const getAllPhones = async (query) => {
     let filter = { approvalStatus: 'APPROVED' };
 
@@ -93,7 +107,7 @@ export const getAllPhones = async (query) => {
     const skip = limit > 0 ? (page - 1) * limit : 0;
 
     const total = await Phone.countDocuments(filter);
-    const phones = await Phone.find(filter).sort(sortQuery).skip(skip).limit(limit);
+    const phones = await Phone.find(filter).select(listProjection).sort(sortQuery).skip(skip).limit(limit).lean();
 
     return {
         phones,
@@ -132,7 +146,7 @@ export const getPhoneDescription = async (slug) => {
 };
 
 export const getPhonesByBrandSlug = async (brandSlug) => {
-    return await Phone.find({ brand_slug: brandSlug, approvalStatus: 'APPROVED' });
+    return await Phone.find({ brand_slug: brandSlug, approvalStatus: 'APPROVED' }).select(listProjection).lean();
 };
 
 export const getRelatedPhones = async (slug) => {
@@ -161,7 +175,7 @@ export const getRelatedPhones = async (slug) => {
         byProcessor = await Phone.find({
             ...baseFilter,
             'specs.performance.chipset': new RegExp(chipsetMatch, 'i')
-        }).limit(5);
+        }).select(listProjection).limit(5).lean();
     }
 
     // Related by Network (5G vs 4G)
@@ -175,7 +189,7 @@ export const getRelatedPhones = async (slug) => {
         byNetwork = await Phone.find({
             ...baseFilter,
             'specs.connectivity.network': new RegExp(networkMatch, 'i')
-        }).limit(5);
+        }).select(listProjection).limit(5).lean();
     }
 
     return {

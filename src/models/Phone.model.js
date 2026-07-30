@@ -187,5 +187,9 @@ phoneSchema.index({ brand_slug: 1, 'prices.price_pkr': 1 });
 phoneSchema.index({ 'specs.performance.ram_options_gb': 1 });
 phoneSchema.index({ 'specs.performance.storage_options_gb': 1 });
 phoneSchema.index({ status: 1 });
+phoneSchema.index({ approvalStatus: 1, brand_slug: 1 });
+phoneSchema.index({ tags: 1 });
+phoneSchema.index({ updated_at: -1 });
+phoneSchema.index({ release_date: -1 });
 
 export const Phone = mongoose.model('Phone', phoneSchema);
