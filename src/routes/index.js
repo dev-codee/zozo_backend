@@ -15,6 +15,7 @@ import blogRoutes from './blog.routes.js';
 import pageRoutes from './page.routes.js';
 import reviewRoutes from './review.routes.js';
 import adRoutes from './ad.routes.js';
+import benchmarkRoutes from './benchmark.routes.js';
 
 const router = Router();
 
@@ -34,5 +35,6 @@ router.use('/blogs', blogRoutes);
 router.use('/pages', pageRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/ads', adRoutes);
+router.use('/benchmarks', benchmarkRoutes);
 
 export default router;

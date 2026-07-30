@@ -39,35 +39,37 @@ Before writing, first think through:
 
 Then write the review exactly with this structure:
 
-- "## Quick Verdict"
-One line summarizing who should buy this and who should avoid it. No fluff.
+- [Introductory Verdict without a heading]
+One line summarizing who should buy this and who should avoid it. No fluff. Do NOT use a heading for this.
 
-- "## Who it's actually for"
+- "## Who **${phoneName}** is actually for"
 Be specific, not "great for everyone". e.g., "Mobile gamers on a budget" or "Photography enthusiasts who don't want to carry a DSLR".
 
-- "## Key Strengths"
+- "## Key Strengths of **${phoneName}**"
 Provide 3-5 concrete strengths with numbers where possible (battery hours, benchmark scores, camera sensor size, charging speeds, price-to-spec ratio). Use bullet points (using the - character).
 
-- "## Honest Trade-offs"
+- "## Honest Trade-offs of **${phoneName}**"
 Provide 2-3 honest trade-offs or dealbreakers — do not write purely positive copy. Use bullet points (using the - character).
 
-- "## Top Alternatives"
+- "## Top Alternatives to **${phoneName}**"
 A quick bulleted list of 2-3 alternatives, stating why someone might buy them instead. Use bullet points.
 
-- "## How we evaluated"
+- "## How we evaluated **${phoneName}**"
 A short paragraph explaining the criteria used to judge this phone.
 
-- "## FAQs" 
+- "## FAQs about **${phoneName}**" 
 Generate a list of exactly 5 common questions and answers about this phone. Format them strictly as Q&A pairs (e.g. "Q: Does it support eSIM?\nA: Yes, it supports...").
 
-- "## Pros & Cons" (must be the final section)
-Under the heading "## Pros & Cons", list Pros (at least 4 bullet points starting with "+ ") and Cons (at least 3 bullet points starting with "- "). Do not mix them; write all Pros first, then all Cons.
+- "## Pros & Cons of **${phoneName}**" (must be the final section)
+Under the heading "## Pros & Cons of **${phoneName}**", list Pros (at least 4 bullet points starting with "+ ") and Cons (at least 3 bullet points starting with "- "). Do not mix them; write all Pros first, then all Cons.
 
 Constraints:
 - No generic filler phrases ("great choice for anyone," "packed with features").
 - Every claim about performance needs a concrete number or comparison point based on the provided specs.
 - Write for a reader who is considering this specific phone — they need to know if it's the right pick or if they should look elsewhere.
 - Format the response using clean Markdown with level 2 (##) headings for each section.
+- DO NOT use em dashes ("—") or other punctuation that makes the text look obviously AI-generated. The response must sound like natural human-written copy.
+- DO NOT guess or hallucinate any information. All claims must be factually correct and strictly based on the provided specifications. If a spec is missing, do not invent it.
 `;
 
     const message = await anthropic.messages.create({
