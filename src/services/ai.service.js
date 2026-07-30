@@ -106,6 +106,7 @@ export const generateAIComparison = async (phones) => {
   try {
     const phoneDetails = phones.map(p => ({
       name: p.name,
+      slug: p.slug,
       specs: p.specs,
       price: p.prices?.[0]?.price_pkr
     }));
@@ -114,16 +115,29 @@ export const generateAIComparison = async (phones) => {
 You are an expert mobile technology reviewer. Please provide a detailed and professional comparison between the following smartphones:
 ${JSON.stringify(phoneDetails, null, 2)}
 
-The comparison MUST follow these guidelines:
-- Keep the information concise, highly structured, and straight to the point.
-- Output the response using well-structured bullet points (using the • character).
-- Explicitly explain the "Pros" and "Cons" of each phone in short, bulleted lists.
-- Highlight which phone is better for specific use cases (e.g., gaming, photography, battery life, value for money).
-- Provide a clear, definitive, and short "Final Verdict" at the end.
-- Maintain a premium, professional, and objective tone.
-- Do not use any generic placeholders or mention that you are an AI.
-- Format the response in plain text. DO NOT use markdown symbols like *, #, -, or bold/italic formatting.
-        `;
+Your task is to generate a comprehensive comparison output as a strict JSON object. Do not include markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
+
+The required JSON schema is:
+{
+  "verdict": "Provide a clear, definitive, and short final verdict summarizing the comparison. Maintain a premium, professional, and objective tone.",
+  "key_differences": {
+    "phone-slug-1": [
+      "Advantage 1 (e.g., 'Shows 19% longer battery life (23:11 vs 19:28 hours)')",
+      "Advantage 2 (e.g., 'Delivers 41% higher peak brightness (1100 against 781 nits)')"
+    ],
+    "phone-slug-2": [
+      "Advantage 1",
+      "Advantage 2"
+    ]
+  }
+}
+
+Guidelines for key_differences:
+- For each phone, provide an array of 3-6 concise bullet points highlighting its strictly better advantages over the other phone(s).
+- Use specific percentage differences and exact spec values where possible (e.g. 'Has 50% more RAM (6GB vs 4GB)').
+- Only list factual advantages based on the specs provided.
+- Ensure the keys in 'key_differences' perfectly match the 'slug' values provided in the phone details array.
+`;
 
     const message = await anthropic.messages.create({
       model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
@@ -131,7 +145,26 @@ The comparison MUST follow these guidelines:
       messages: [{ role: 'user', content: prompt }],
     });
 
-    return message.content[0].text;
+    let rawText = '';
+    if (typeof message === 'string') {
+      rawText = message;
+    } else if (message.content) {
+      if (Array.isArray(message.content)) {
+        const textBlock = message.content.find(b => b.type === 'text');
+        rawText = textBlock ? textBlock.text : (message.content[0]?.text || '');
+      } else {
+        rawText = typeof message.content === 'string' ? message.content : (message.content.text || '');
+      }
+    } else if (message.choices && message.choices[0]?.message?.content) {
+      rawText = message.choices[0].message.content;
+    }
+
+    if (!rawText) return null;
+
+    const match = rawText.match(/\\{[\\s\\S]*\\}/);
+    if (!match) return null;
+
+    return JSON.parse(match[0]);
   } catch (error) {
     console.error("Error generating comparison from Anthropic:", error);
     return null;

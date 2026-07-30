@@ -20,6 +20,9 @@ const comparisonSchema = new mongoose.Schema(
         ai_verdict: {
             type: String,
         },
+        ai_key_differences: {
+            type: mongoose.Schema.Types.Mixed,
+        },
     },
     {
         timestamps: true,

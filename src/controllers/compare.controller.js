@@ -46,8 +46,11 @@ export const getAIComparison = asyncHandler(async (req, res) => {
     const Comparison = (await import('../models/Comparison.model.js')).default;
     const existingComparison = await Comparison.findOne({ slugs: sortedSlugs });
     
-    if (existingComparison && existingComparison.ai_verdict) {
-        return res.status(200).json(new ApiResponse(200, { verdict: existingComparison.ai_verdict }, "AI Comparison fetched from cache"));
+    if (existingComparison && existingComparison.ai_verdict && existingComparison.ai_key_differences) {
+        return res.status(200).json(new ApiResponse(200, { 
+            verdict: existingComparison.ai_verdict, 
+            key_differences: existingComparison.ai_key_differences 
+        }, "AI Comparison fetched from cache"));
     }
     
     const phones = await compareService.comparePhonesList(slugsArray);
@@ -56,20 +59,28 @@ export const getAIComparison = asyncHandler(async (req, res) => {
     }
     
     const { generateAIComparison } = await import('../services/ai.service.js');
-    const verdict = await generateAIComparison(phones);
+    const aiResponse = await generateAIComparison(phones);
     
-    if (verdict) {
+    if (aiResponse && aiResponse.verdict) {
         await Comparison.findOneAndUpdate(
             { slugs: sortedSlugs },
             { 
-                $set: { ai_verdict: verdict },
+                $set: { 
+                    ai_verdict: aiResponse.verdict,
+                    ai_key_differences: aiResponse.key_differences || {}
+                },
                 $setOnInsert: { phones: phones.map(p => p._id) }
             },
             { upsert: true, new: true }
         );
+        
+        return res.status(200).json(new ApiResponse(200, { 
+            verdict: aiResponse.verdict,
+            key_differences: aiResponse.key_differences || {}
+        }, "AI Comparison generated successfully"));
     }
     
-    res.status(200).json(new ApiResponse(200, { verdict }, "AI Comparison generated successfully"));
+    res.status(500).json(new ApiResponse(500, null, "Failed to generate AI Comparison"));
 });
 
 export const trackComparison = asyncHandler(async (req, res) => {
