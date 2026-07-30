@@ -34,38 +34,38 @@ Flagship Status: ${isFlagship ? 'This is a FLAGSHIP smartphone. Tailor the revie
 
 Your response must contain exactly the following sections with their corresponding headings. Keep each section concise, to the point, and highly informative:
 
-- "## Quick Verdict for **${phoneName}**" (50-80 words)
-Write a summary of the phone's strengths, weaknesses, and target audience.
+- "## Quick Verdict for **${phoneName}**"
+Provide a highly concise summary (2-3 sentences max) of the phone's strengths, weaknesses, and target audience.
 
-- "## Design and Build Quality of **${phoneName}**" (80-120 words)
-Analyze the materials, build quality, ergonomics (such as weight, thickness, colors, IP rating, buttons, grip, premium feel), and overall aesthetic.
+- "## Design and Build Quality of **${phoneName}**"
+Provide 3-4 highly concise, punchy bullet points covering materials, build quality, IP rating, and ergonomics.
 
-- "## Display of **${phoneName}**" (80-120 words)
-Detail the screen technology, resolution, brightness (peak/typical), refresh rate, colors, screen protection, and real-world viewing experience.
+- "## Display of **${phoneName}**"
+Provide 3-4 highly concise bullet points covering screen tech, resolution, brightness, refresh rate, and viewing experience.
 
-- "## Performance of **${phoneName}**" (100-150 words)
-Examine the processor, CPU cores, GPU capabilities, RAM, storage speed, multitasking ability, thermal management, and daily responsiveness.
+- "## Performance of **${phoneName}**"
+Provide 3-5 highly concise bullet points examining the processor, RAM, storage, and daily responsiveness.
 
-- "## Camera of **${phoneName}**" (150-250 words)
-Provide a concise analysis of the rear and front camera sensors, image quality in daylight and low light, zoom capabilities, video recording resolutions/features, stabilization, and portrait/computational photography.
+- "## Camera of **${phoneName}**"
+Provide 4-5 highly concise bullet points analyzing rear/front sensors, image quality, zoom, and video capabilities.
 
-- "## Battery of **${phoneName}**" (80-120 words)
-Discuss battery capacity, real-world battery life, screen-on time, fast charging speeds (wattage), wireless/reverse wireless charging, and charger inclusion in the box.
+- "## Battery of **${phoneName}**"
+Provide 3-4 highly concise bullet points discussing battery capacity, charging speeds, and expected real-world battery life.
 
-- "## Software of **${phoneName}**" (80-120 words)
-Cover the operating system, user interface, software features, customizability, pre-installed apps, and updates support/upgrade promise.
+- "## Software of **${phoneName}**"
+Provide 3-4 highly concise bullet points covering OS, UI, features, and update promises.
 
-- "## Audio of **${phoneName}**" (50-80 words)
-Evaluate speaker setup (stereo/mono), sound quality, volume levels, Hi-Res audio support, Dolby Atmos, and headphone jack presence.
+- "## Audio of **${phoneName}**"
+Provide 2-3 highly concise bullet points evaluating speaker setup and audio features.
 
-- "## Connectivity" (50-80 words)
-Detail 5G bands, Wi-Fi standard, Bluetooth version, NFC availability, USB speed, and SIM options.
+- "## Connectivity"
+Provide 3-4 highly concise bullet points detailing 5G, Wi-Fi, Bluetooth, NFC, and USB options.
 
-- "## Gaming" (80-120 words)
-Analyze gaming performance on high-end titles (PUBG, Genshin Impact, Call of Duty), frame rates, heat generation, throttling, and game mode features.
+- "## Gaming"
+Provide 3-4 highly concise bullet points analyzing frame rates, thermals, and performance in high-end titles.
 
-- "## Benchmarks" (50-80 words)
-Reference performance benchmark expectations (such as AnTuTu, Geekbench single/multi core, 3DMark) typical for this hardware setup.
+- "## Benchmarks"
+Provide 2-3 highly concise bullet points referencing AnTuTu/Geekbench expectations typical for this hardware.
 
 - "## FAQs" 
 Generate a list of exactly 5 common questions and answers about this phone. Format them strictly as Q&A pairs (e.g. "Q: Does it support eSIM?\nA: Yes, it supports...").
@@ -81,7 +81,7 @@ Formatting Guidelines:
 - Wherever you reference or write the phone model name "${phoneName}" in the headings or paragraphs, always format it in bold using double asterisks (e.g., "**${phoneName}**").
 - Do not use generic placeholders or mention you are an AI.
 - Ensure the tone is objective, professional, and authoritative.
-- Write each paragraph in clear, standard English.
+- IMPORTANT: Use bullet points (using the - character) for ALL sections (except Quick Verdict and Best For). Keep every bullet point strictly under 15 words. Nobody reads long paragraphs.
 `;
 
     const message = await anthropic.messages.create({
@@ -119,7 +119,7 @@ Your task is to generate a comprehensive comparison output as a strict JSON obje
 
 The required JSON schema is:
 {
-  "verdict": "Provide a clear, definitive, and short final verdict summarizing the comparison. Maintain a premium, professional, and objective tone.",
+  "verdict": "Provide a very concise, punchy, and highly precise final verdict (maximum 2-3 sentences). Get straight to the point about which phone is better for whom. Maintain a premium, professional, and objective tone.",
   "key_differences": {
     "phone-slug-1": [
       "Advantage 1 (e.g., 'Shows 19% longer battery life (23:11 vs 19:28 hours)')",
