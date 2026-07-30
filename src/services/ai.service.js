@@ -70,6 +70,7 @@ Constraints:
 - Format the response using clean Markdown with level 2 (##) headings for each section.
 - DO NOT use em dashes ("—") or other punctuation that makes the text look obviously AI-generated. The response must sound like natural human-written copy.
 - DO NOT guess or hallucinate any information. All claims must be factually correct and strictly based on the provided specifications. If a spec is missing, do not invent it.
+- DO NOT use dollar prices or any other currency. ALL pricing mentioned MUST be in Pakistani Rupees (PKR) only.
 `;
 
     const message = await anthropic.messages.create({
@@ -149,7 +150,7 @@ Guidelines for key_differences:
 
     if (!rawText) return null;
 
-    const match = rawText.match(/\\{[\\s\\S]*\\}/);
+    const match = rawText.match(/\{[\s\S]*\}/);
     if (!match) return null;
 
     return JSON.parse(match[0]);
