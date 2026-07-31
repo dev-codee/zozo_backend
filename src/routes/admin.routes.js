@@ -19,6 +19,9 @@ router.get('/phones/check-duplicate', protectAdmin, adminController.checkDuplica
 router.delete('/phones/:id', protectAdmin, requirePermission('delete_content'), adminController.deletePhone);
 router.get('/phones/:id', protectAdmin, adminController.getPhoneById);
 router.put('/phones/:id', protectAdmin, requirePermission('edit_content'), adminController.updatePhone);
+router.get('/phones/:id/reviews', protectAdmin, requirePermission('edit_content'), adminController.getPhoneReviewsAdmin);
+router.put('/reviews/:id', protectAdmin, requirePermission('edit_content'), adminController.updateReviewAdmin);
+router.delete('/reviews/:id', protectAdmin, requirePermission('delete_content'), adminController.deleteReviewAdmin);
 
 // Workflow
 router.post('/phones/:id/approve', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminController.approvePhone);

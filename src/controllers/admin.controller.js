@@ -7,6 +7,7 @@ import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
 import { slugify } from '../utils/slugify.js';
 import { generatePhoneDataAdmin, generatePhoneSEO } from '../services/ai.service.js';
+import Review from '../models/Review.model.js';
 import jwt from 'jsonwebtoken';
 
 export const getDashboardStats = asyncHandler(async (req, res) => {
@@ -491,5 +492,63 @@ export const getAdminActivityLogs = asyncHandler(async (req, res) => {
         totalPages: Math.ceil(total / limit),
         currentPage: page
     }, "Admin activity fetched"));
+});
+
+export const getPhoneReviewsAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || '';
+    const skip = (page - 1) * limit;
+
+    let query = { phoneId: id };
+    if (search) {
+        query.$or = [
+            { userName: { $regex: search, $options: 'i' } },
+            { comment: { $regex: search, $options: 'i' } }
+        ];
+    }
+
+    const reviews = await Review.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+    
+    const total = await Review.countDocuments(query);
+
+    res.status(200).json(new ApiResponse(200, {
+        reviews,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page
+    }, "Phone reviews fetched"));
+});
+
+export const updateReviewAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { comment, rating, userName } = req.body;
+
+    const review = await Review.findByIdAndUpdate(
+        id, 
+        { comment, rating, userName }, 
+        { new: true, runValidators: true }
+    );
+
+    if (!review) {
+        return res.status(404).json(new ApiResponse(404, null, "Review not found"));
+    }
+
+    res.status(200).json(new ApiResponse(200, review, "Review updated successfully"));
+});
+
+export const deleteReviewAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const review = await Review.findByIdAndDelete(id);
+
+    if (!review) {
+        return res.status(404).json(new ApiResponse(404, null, "Review not found"));
+    }
+
+    res.status(200).json(new ApiResponse(200, null, "Review deleted successfully"));
 });
 

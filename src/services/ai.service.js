@@ -126,6 +126,7 @@ Guidelines for key_differences:
 - Use specific percentage differences and exact spec values where possible (e.g. 'Has 50% more RAM (6GB vs 4GB)').
 - Only list factual advantages based on the specs provided.
 - Ensure the keys in 'key_differences' perfectly match the 'slug' values provided in the phone details array.
+- DO NOT use dollar prices or any other currency. ALL pricing mentioned MUST be in Pakistani Rupees (PKR) only.
 `;
 
     const message = await anthropic.messages.create({
