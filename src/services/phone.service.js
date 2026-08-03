@@ -56,6 +56,20 @@ export const getAllPhones = async (query) => {
         }
     }
 
+    if (query.storage) {
+        const storages = query.storage.split(',').map(s => parseInt(s.trim(), 10)).filter(s => !isNaN(s));
+        if (storages.length > 0) {
+            filter['specs.performance.storage_options_gb'] = { $in: storages };
+        }
+    }
+
+    if (query.refresh_rate) {
+        const hz = parseInt(String(query.refresh_rate).match(/\d+/)?.[0], 10);
+        if (!isNaN(hz)) {
+            filter['specs.display.refresh_rate_hz'] = { $gte: hz };
+        }
+    }
+
     if (query.network) {
         const networks = query.network.split(',').map(n => new RegExp(n.trim(), 'i'));
         filter['specs.connectivity.network'] = { $in: networks };
