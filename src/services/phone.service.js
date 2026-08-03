@@ -52,7 +52,13 @@ export const getAllPhones = async (query) => {
         const minMpArray = query.camera.split(',').map(c => parseInt(c.match(/\d+/)?.[0], 10)).filter(n => !isNaN(n));
         if (minMpArray.length > 0) {
             const lowestMp = Math.min(...minMpArray);
-            filter['specs.camera.rear'] = { $elemMatch: { megapixels: { $gte: lowestMp } } };
+            // Camera megapixels live in the human-readable `rear_summary` string
+            // (e.g. "48 MP + 12 MP"), so match any MP value >= the requested minimum.
+            const MP_VALUES = [13, 16, 20, 24, 32, 48, 50, 64, 108, 200];
+            const candidates = MP_VALUES.filter(m => m >= lowestMp);
+            if (candidates.length > 0) {
+                filter['specs.camera.rear_summary'] = new RegExp('(?:' + candidates.join('|') + ')\\s*MP', 'i');
+            }
         }
     }
 
