@@ -103,7 +103,8 @@ export const getAllPhones = async (query) => {
         filter.status = query.status;
     }
 
-    let sortQuery = {};
+    // Default: newest phones (by release date) first
+    let sortQuery = { release_date: -1 };
     if (query.sort === 'latest') {
         sortQuery = { release_date: -1 };
     } else if (query.sort === 'trending') {

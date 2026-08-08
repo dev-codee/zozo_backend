@@ -123,10 +123,13 @@ export const logout = asyncHandler(async (req, res) => {
         }
     }
 
+    const origin = req.get('origin');
+    const isProduction = process.env.NODE_ENV === 'production' || (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1'));
+
     res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : false
     });
 
     res.status(200).json(new ApiResponse(200, null, "Logged out successfully"));
