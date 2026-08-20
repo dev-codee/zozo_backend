@@ -129,6 +129,14 @@ export const getAllPhones = async (query) => {
         sortQuery = { 'prices.price_pkr': -1 };
     }
 
+    // Stable tiebreaker: the primary sort keys above (release_date, updated_at,
+    // price) all have ties and null values. Without a unique final key, MongoDB
+    // does not guarantee a consistent order for tied documents across separate
+    // queries — so with skip/limit the same phone can repeat on multiple pages
+    // while others are skipped. Appending the unique _id makes ordering total
+    // and deterministic, which is what keeps pagination correct.
+    sortQuery._id = 1;
+
     let limit = 15;
     if (query.limit) {
         if (query.limit === 'all') {
