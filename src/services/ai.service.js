@@ -168,6 +168,7 @@ export const generatePhoneSEO = async (phoneData) => {
   }
 
   try {
+    const currentYear = new Date().getFullYear();
     const prompt = `
 You are an expert SEO specialist for mobile phones in Pakistan. Given the following phone data, generate highly optimized SEO fields.
 
@@ -179,7 +180,7 @@ Specs: ${JSON.stringify(phoneData.specs, null, 2)}
 Return a valid JSON object with the following schema exactly (no markdown formatting, just raw JSON). Ensure all arrays contain strings except for ai_faq which contains objects.
 
 {
-  "ai_seo_title": "Optimized title (under 60 chars) including 'Price in Pakistan'",
+  "ai_seo_title": "Title in the exact format '${phoneData.name} Latest Price in Pakistan & Specs ${currentYear}'. Do NOT append the brand name 'Zozo'. Always end with the year ${currentYear}.",
   "ai_meta_description": "Compelling meta description (under 160 chars)",
   "ai_faq": [
     { "question": "Question 1", "answer": "Answer 1" },
