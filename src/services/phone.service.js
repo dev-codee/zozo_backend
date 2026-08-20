@@ -99,8 +99,22 @@ export const getAllPhones = async (query) => {
         filter['tags'] = { $in: categories };
     }
 
-    if (query.status) {
-        filter.status = query.status;
+    // "Upcoming" is driven by the release date, not a static status field.
+    // A phone belongs in the Upcoming tab only while its release date is still in
+    // the future; the moment that date passes it automatically drops out of this
+    // list and starts appearing in the normal listings like any released phone —
+    // no manual status change required.
+    const now = new Date();
+    if (query.status === 'upcoming') {
+        filter.release_date = { $gt: now };
+    } else {
+        if (query.status) {
+            filter.status = query.status;
+        }
+        // Keep not-yet-released phones out of every normal listing — they live
+        // exclusively in the Upcoming tab until their release date arrives.
+        // Phones with no release date are treated as already available.
+        filter.release_date = { $not: { $gt: now } };
     }
 
     // Default: newest phones (by release date) first
