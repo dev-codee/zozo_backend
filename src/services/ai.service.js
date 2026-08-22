@@ -8,7 +8,7 @@ if (!env.PERPLEXITY_API_KEY || env.PERPLEXITY_API_KEY === 'your_perplexity_api_k
 
 const callPerplexity = async (systemPrompt, userPrompt, model = 'sonar-pro') => {
   if (!env.PERPLEXITY_API_KEY) return null;
-  
+
   const response = await fetch(PERPLEXITY_API_URL, {
     method: 'POST',
     headers: {
@@ -297,11 +297,6 @@ export const generatePhoneDataAdmin = async (phoneName) => {
     "os": "iOS 17",
     "ai_features": ["Circle To Search", "Gemini", "Galaxy AI", "Apple Intelligence", "Live Translate", "Magic Eraser", "AI Photo", "AI Video", "AI Call", "AI Notes", "AI Writing", "AI Wallpaper", "AI Voice", "AI Search", "AI Assistant", "AI Summary", "AI Interpreter"], // keep applicable
     "extra_specs": {
-      "price_section": {
-        "store_name": "", "store_logo": "", "store_url": "", "affiliate_url": "",
-        "current_price": "", "old_price": "", "discount_percent": "", "coupon": "", "cashback": "",
-        "cod": false, "warranty": "", "delivery_time": "", "stock_status": "In Stock", "price_source": ""
-      },
       "features_listing": {
         "pixels": "", "ppi": "", "aspect_ratio": "", "touch_sampling": "",
         "hdr": false, "hdr10": false, "hdr10_plus": false, "dolby_vision": false, "always_on_display": false,
@@ -341,21 +336,6 @@ export const generatePhoneDataAdmin = async (phoneName) => {
       "gaming": {
         "pubg_fps": "", "cod_fps": "", "free_fire_fps": "", "genshin_fps": "", "heating": "", "throttle": "", "cooling": "", "game_mode": false, "triggers": false
       },
-      "ai_generated_content": {
-        "ai_summary": "", "ai_pros": "", "ai_cons": "", "ai_verdict": "", "ai_comparison": "", "ai_buying_advice": "", "ai_faq": "", "ai_meta_title": "", "ai_meta_description": "", "ai_keywords": "", "ai_highlights": ""
-      },
-      "seo": {
-        "slug": "", "canonical": "", "og_title": "", "og_image": "", "twitter_card": "", "schema": "", "breadcrumb": "", "faq_schema": false, "review_schema": false
-      },
-      "affiliate": {
-        "commission_percent": "", "geo_redirect": false, "deep_link": ""
-      },
-      "moderation": {
-        "fact_checked": false, "verified_specs": false, "ai_verified": true, "editor_approved": false
-      },
-      "ai_automation": {
-        "auto_summary": true, "auto_pros_cons": true, "auto_buying_advice": true, "auto_faqs": true, "auto_comparison": true, "auto_seo_title": true, "auto_meta_description": true, "auto_alt_text": true, "auto_tag": true, "auto_categorize": true, "auto_link_related": true, "auto_detect_duplicate": true, "auto_translate": false, "auto_create_news": false, "auto_create_buying_guide": false, "auto_calc_value": true, "auto_update_price": false, "auto_recalc_score": true, "auto_monitor_competitors": false, "auto_summarize_reviews": false, "auto_extract_specs": true, "auto_schema": true
-      },
       "colors": "Titanium Black, Titanium Gray"
     }
   },
@@ -367,11 +347,18 @@ export const generatePhoneDataAdmin = async (phoneName) => {
 You are an expert mobile technology database architect and highly accurate researcher.
 Your task is to generate a comprehensive JSON object containing all known specifications and features for the smartphone: "${phoneName}".
 
-Please thoroughly research this phone (e.g. using GSMArena or official specs) and fill in as many fields accurately as possible based on verified data. 
-For arrays representing checkboxes (like features, video_features, ai_features), only include the values from the schema example that actually apply to this phone.
-If a field is completely unknown or unavailable, leave it as an empty string ("") for text, 0 or null for numbers, false for booleans, or an empty array [] for lists.
+Please perform an EXHAUSTIVE research on this phone (using sources like GSMArena, Kimovil, NanoReview, or official spec sheets). 
+Your goal is to populate as many fields as humanly possible. DO NOT be lazy. Fill in all deep technical details including:
+- GPU, CPU clocks, RAM types
+- Bluetooth, Wi-Fi, GPS
+- Video recording capabilities, camera apertures, sensor sizes
+- Body materials, IP ratings, screen protection, fingerprint types
+- Benchmark scores if possible
 
-You MUST return a valid JSON object matching the exact structure below. Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
+For arrays representing checkboxes (like features, video_features, ai_features), include every single value from the schema example that applies to this phone.
+Only leave a field completely empty if the information absolutely does not exist anywhere on the internet. Use your extensive pre-trained knowledge to fill in any gaps left by the search results.
+
+You MUST return a valid JSON object matching the exact structure below. please fill maximum fields that you can but make sure they must be CORRECT. Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
 
 Here is the required schema:
 ${schemaString}
