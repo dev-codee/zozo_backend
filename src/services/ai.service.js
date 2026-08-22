@@ -1,15 +1,41 @@
-import Anthropic from '@anthropic-ai/sdk';
 import env from '../config/env.js';
 
-let anthropic;
-if (env.ANTHROPIC_API_KEY && env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here') {
-  anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-} else {
-  console.warn("ANTHROPIC_API_KEY is not set or invalid. AI descriptions will not work.");
+const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
+
+if (!env.PERPLEXITY_API_KEY || env.PERPLEXITY_API_KEY === 'your_perplexity_api_key_here') {
+  console.warn("PERPLEXITY_API_KEY is not set or invalid. AI descriptions will not work.");
 }
 
+const callPerplexity = async (systemPrompt, userPrompt, model = 'sonar-pro') => {
+  if (!env.PERPLEXITY_API_KEY) return null;
+  
+  const response = await fetch(PERPLEXITY_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.PERPLEXITY_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: model,
+      max_tokens: 2000,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Perplexity API Error: ${response.status} - ${errText}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+};
+
 export const generatePhoneDescription = async (phoneName, specs, tags = []) => {
-  if (!anthropic) {
+  if (!env.PERPLEXITY_API_KEY) {
     console.warn("Skipping AI description generation because API key is missing.");
     return null;
   }
@@ -73,21 +99,20 @@ Constraints:
 - DO NOT use dollar prices or any other currency. ALL pricing mentioned MUST be in Pakistani Rupees (PKR) only.
 `;
 
-    const message = await anthropic.messages.create({
-      model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const rawText = await callPerplexity(
+      "You are a senior smartphone reviewer for a consumer tech buying guide.",
+      prompt
+    );
 
-    return message.content[0].text;
+    return rawText;
   } catch (error) {
-    console.error("Error generating description from Anthropic:", error);
+    console.error("Error generating description from Perplexity:", error);
     return null;
   }
 };
 
 export const generateAIComparison = async (phones) => {
-  if (!anthropic) {
+  if (!env.PERPLEXITY_API_KEY) {
     console.warn("Skipping AI comparison because API key is missing.");
     return null;
   }
@@ -129,25 +154,10 @@ Guidelines for key_differences:
 - DO NOT use dollar prices or any other currency. ALL pricing mentioned MUST be in Pakistani Rupees (PKR) only.
 `;
 
-    const message = await anthropic.messages.create({
-      model: env.AI_MODEL || 'claude-haiku-4-5-20251001',
-      max_tokens: 1500,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    let rawText = '';
-    if (typeof message === 'string') {
-      rawText = message;
-    } else if (message.content) {
-      if (Array.isArray(message.content)) {
-        const textBlock = message.content.find(b => b.type === 'text');
-        rawText = textBlock ? textBlock.text : (message.content[0]?.text || '');
-      } else {
-        rawText = typeof message.content === 'string' ? message.content : (message.content.text || '');
-      }
-    } else if (message.choices && message.choices[0]?.message?.content) {
-      rawText = message.choices[0].message.content;
-    }
+    const rawText = await callPerplexity(
+      "You are an expert mobile technology reviewer.",
+      prompt
+    );
 
     if (!rawText) return null;
 
@@ -156,13 +166,13 @@ Guidelines for key_differences:
 
     return JSON.parse(match[0]);
   } catch (error) {
-    console.error("Error generating comparison from Anthropic:", error);
+    console.error("Error generating comparison from Perplexity:", error);
     return null;
   }
 };
 
 export const generatePhoneSEO = async (phoneData) => {
-  if (!anthropic) {
+  if (!env.PERPLEXITY_API_KEY) {
     console.warn("Skipping AI SEO generation because API key is missing.");
     return null;
   }
@@ -199,28 +209,13 @@ Return a valid JSON object with the following schema exactly (no markdown format
 }
 `;
 
-    const message = await anthropic.messages.create({
-      model: env.AI_MODEL || 'claude-sonnet-5',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    let rawJSON = '';
-    if (typeof message === 'string') {
-      rawJSON = message;
-    } else if (message.content) {
-      if (Array.isArray(message.content)) {
-        const textBlock = message.content.find(b => b.type === 'text');
-        rawJSON = textBlock ? textBlock.text : (message.content[0]?.text || '');
-      } else {
-        rawJSON = typeof message.content === 'string' ? message.content : (message.content.text || '');
-      }
-    } else if (message.choices && message.choices[0]?.message?.content) {
-      rawJSON = message.choices[0].message.content;
-    }
+    const rawJSON = await callPerplexity(
+      "You are an expert SEO specialist for mobile phones in Pakistan. Output only raw JSON.",
+      prompt
+    );
 
     if (!rawJSON) {
-      console.error("AI response did not contain text. Raw message:", JSON.stringify(message));
+      console.error("AI response did not contain text.");
       throw new Error("Empty response from AI");
     }
 
@@ -234,13 +229,13 @@ Return a valid JSON object with the following schema exactly (no markdown format
     const jsonText = match[0];
     return JSON.parse(jsonText);
   } catch (error) {
-    console.error("Error generating SEO from Anthropic:", error);
+    console.error("Error generating SEO from Perplexity:", error);
     throw new Error(error.message || "Failed to generate AI SEO data");
   }
 };
 
 export const generatePhoneDataAdmin = async (phoneName) => {
-  if (!anthropic) {
+  if (!env.PERPLEXITY_API_KEY) {
     console.warn("Skipping AI data generation because API key is missing.");
     return null;
   }
@@ -372,41 +367,23 @@ export const generatePhoneDataAdmin = async (phoneName) => {
 You are an expert mobile technology database architect and highly accurate researcher.
 Your task is to generate a comprehensive JSON object containing all known specifications and features for the smartphone: "${phoneName}".
 
-CRITICAL INSTRUCTIONS FOR ACCURACY:
-1. Provide the most accurate specifications based on your pre-trained knowledge of trusted sources like GSMArena and official manufacturer data.
-2. DO NOT completely guess. If a specific niche detail is completely unknown to you, leave the field as an empty string ("") for text, 0 or null for numbers, false for booleans, or an empty array [] for lists. 
-3. However, do your best to fill in all the major specs (display, processor, RAM, battery, cameras) that are well-known for this phone. Do not leave the entire JSON blank unless the phone is completely fictional.
-4. For arrays representing checkboxes (like features, video_features, ai_features), ONLY include the values from the schema example that actually apply to this phone.
-5. You MUST return a valid JSON object matching the schema below. NEVER refuse to answer or output explanatory text. ONLY output the JSON object.
+Please thoroughly research this phone (e.g. using GSMArena or official specs) and fill in as many fields accurately as possible based on verified data. 
+For arrays representing checkboxes (like features, video_features, ai_features), only include the values from the schema example that actually apply to this phone.
+If a field is completely unknown or unavailable, leave it as an empty string ("") for text, 0 or null for numbers, false for booleans, or an empty array [] for lists.
 
-Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
+You MUST return a valid JSON object matching the exact structure below. Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
 
 Here is the required schema:
 ${schemaString}
 `;
 
-    const message = await anthropic.messages.create({
-      model: env.AI_MODEL || 'claude-sonnet-5',
-      max_tokens: 4000,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    let rawText = '';
-    if (typeof message === 'string') {
-      rawText = message;
-    } else if (message.content) {
-      if (Array.isArray(message.content)) {
-        const textBlock = message.content.find(b => b.type === 'text');
-        rawText = textBlock ? textBlock.text : (message.content[0]?.text || '');
-      } else {
-        rawText = typeof message.content === 'string' ? message.content : (message.content.text || '');
-      }
-    } else if (message.choices && message.choices[0]?.message?.content) {
-      rawText = message.choices[0].message.content;
-    }
+    const rawText = await callPerplexity(
+      "You are an expert mobile technology database architect and highly accurate researcher. Return ONLY raw JSON without markdown.",
+      prompt
+    );
 
     if (!rawText) {
-      console.error("AI response did not contain text. Raw message:", JSON.stringify(message));
+      console.error("AI response did not contain text.");
       return null;
     }
 
@@ -420,7 +397,7 @@ ${schemaString}
     const jsonText = match[0];
     return JSON.parse(jsonText);
   } catch (error) {
-    console.error("Error generating data from Anthropic:", error);
+    console.error("Error generating data from Perplexity:", error);
     throw new Error(error.message || "Failed to generate AI Phone data");
   }
 };
