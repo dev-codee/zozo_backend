@@ -373,11 +373,11 @@ You are an expert mobile technology database architect and highly accurate resea
 Your task is to generate a comprehensive JSON object containing all known specifications and features for the smartphone: "${phoneName}".
 
 CRITICAL INSTRUCTIONS FOR ACCURACY:
-1. DO NOT GUESS OR HALLUCINATE ANY SPECIFICATIONS. If you are not 100% certain about a specification, leave the field as an empty string ("") for text/numbers, or false for booleans, or an empty array [] for lists.
-2. Rely strictly on trusted and authoritative sources such as nanoreview.net, GSMArena, and official manufacturer specifications. 
-3. Incorrect specifications are severely detrimental to our users. It is much better to leave a field blank than to provide incorrect or guessed information.
-4. For arrays representing checkboxes (like features, video_features, ai_features), ONLY include the values from the schema example that actually apply to this phone based on verified facts.
-5. The output MUST strictly conform to the provided JSON schema. Do not change keys or add new keys.
+1. Provide the most accurate specifications based on your pre-trained knowledge of trusted sources like GSMArena and official manufacturer data.
+2. DO NOT completely guess. If a specific niche detail is completely unknown to you, leave the field as an empty string ("") for text, 0 or null for numbers, false for booleans, or an empty array [] for lists. 
+3. However, do your best to fill in all the major specs (display, processor, RAM, battery, cameras) that are well-known for this phone. Do not leave the entire JSON blank unless the phone is completely fictional.
+4. For arrays representing checkboxes (like features, video_features, ai_features), ONLY include the values from the schema example that actually apply to this phone.
+5. You MUST return a valid JSON object matching the schema below. NEVER refuse to answer or output explanatory text. ONLY output the JSON object.
 
 Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
 
