@@ -369,9 +369,15 @@ export const generatePhoneDataAdmin = async (phoneName) => {
         `;
 
     const prompt = `
-You are an expert mobile technology database architect and researcher.
+You are an expert mobile technology database architect and highly accurate researcher.
 Your task is to generate a comprehensive JSON object containing all known specifications and features for the smartphone: "${phoneName}".
-The output MUST strictly conform to the provided JSON schema. Ensure you research thoroughly and fill in as many fields accurately as possible. For arrays representing checkboxes (like display_features, video_recording_features, ai_features), only include the values from the schema example that actually apply to this phone. Leave fields as empty strings or false if the data is unavailable or inapplicable.
+
+CRITICAL INSTRUCTIONS FOR ACCURACY:
+1. DO NOT GUESS OR HALLUCINATE ANY SPECIFICATIONS. If you are not 100% certain about a specification, leave the field as an empty string ("") for text/numbers, or false for booleans, or an empty array [] for lists.
+2. Rely strictly on trusted and authoritative sources such as nanoreview.net, GSMArena, and official manufacturer specifications. 
+3. Incorrect specifications are severely detrimental to our users. It is much better to leave a field blank than to provide incorrect or guessed information.
+4. For arrays representing checkboxes (like features, video_features, ai_features), ONLY include the values from the schema example that actually apply to this phone based on verified facts.
+5. The output MUST strictly conform to the provided JSON schema. Do not change keys or add new keys.
 
 Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
 
