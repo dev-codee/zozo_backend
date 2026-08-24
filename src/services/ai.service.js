@@ -6,8 +6,32 @@ if (!env.PERPLEXITY_API_KEY || env.PERPLEXITY_API_KEY === 'your_perplexity_api_k
   console.warn("PERPLEXITY_API_KEY is not set or invalid. AI descriptions will not work.");
 }
 
-const callPerplexity = async (systemPrompt, userPrompt, model = 'sonar-pro') => {
+const callPerplexity = async (systemPrompt, userPrompt, options = {}) => {
   if (!env.PERPLEXITY_API_KEY) return null;
+
+  const {
+    model = 'sonar-pro',
+    // Leave undefined so the model uses its full completion budget — capping
+    // max_tokens is what truncates long spec JSON and drops fields. Only set
+    // this when you deliberately want a short answer.
+    maxTokens = undefined,
+    temperature = 0.2,
+    // 'low' | 'medium' | 'high' — how much web-search context Perplexity pulls
+    // in before answering. 'high' = more sources read = more accurate specs.
+    searchContextSize = 'medium',
+    returnCitations = false,
+  } = options;
+
+  const body = {
+    model,
+    temperature,
+    web_search_options: { search_context_size: searchContextSize },
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ]
+  };
+  if (maxTokens != null) body.max_tokens = maxTokens;
 
   const response = await fetch(PERPLEXITY_API_URL, {
     method: 'POST',
@@ -15,14 +39,7 @@ const callPerplexity = async (systemPrompt, userPrompt, model = 'sonar-pro') => 
       'Authorization': `Bearer ${env.PERPLEXITY_API_KEY}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      model: model,
-      max_tokens: 2000,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {
@@ -31,7 +48,36 @@ const callPerplexity = async (systemPrompt, userPrompt, model = 'sonar-pro') => 
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  const content = data.choices?.[0]?.message?.content ?? null;
+
+  if (returnCitations) {
+    // Perplexity returns sources under `citations` (URLs) and/or `search_results`.
+    return { content, citations: data.citations || [], searchResults: data.search_results || [] };
+  }
+  return content;
+};
+
+// Robustly pull a JSON object out of an LLM response even if it is wrapped in
+// ```json fences or has leading/trailing prose. Returns null if unparseable.
+const parseJsonObject = (rawText) => {
+  if (!rawText) return null;
+  let text = rawText.trim();
+
+  // Strip ```json ... ``` fences if the model added them despite instructions.
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenceMatch) text = fenceMatch[1].trim();
+
+  // Grab from the first "{" to the last "}" to drop any surrounding prose.
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) return null;
+  const candidate = text.slice(start, end + 1);
+
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
 };
 
 export const generatePhoneDescription = async (phoneName, specs, tags = []) => {
@@ -344,47 +390,144 @@ export const generatePhoneDataAdmin = async (phoneName) => {
         `;
 
     const prompt = `
-You are an expert mobile technology database architect and highly accurate researcher.
-Your task is to generate a comprehensive JSON object containing all known specifications and features for the smartphone: "${phoneName}".
+You are an expert mobile technology database architect and a meticulous, fact-checking researcher.
+Your task is to produce a comprehensive JSON object containing the specifications for the smartphone: "${phoneName}".
 
-Please perform an EXHAUSTIVE research on this phone (using sources like GSMArena, Kimovil, NanoReview, or official spec sheets). 
-Your goal is to populate as many fields as humanly possible. DO NOT be lazy. Fill in all deep technical details including:
-- GPU, CPU clocks, RAM types
-- Bluetooth, Wi-Fi, GPS
-- Video recording capabilities, camera apertures, sensor sizes
-- Body materials, IP ratings, screen protection, fingerprint types
-- Benchmark scores if possible
+RESEARCH METHOD (do this before answering):
+- Perform live web search of AUTHORITATIVE sources ONLY: the official manufacturer spec page, GSMArena, Kimovil, and NanoReview.
+- Treat the official manufacturer spec sheet and GSMArena as the source of truth. If sources disagree, use GSMArena.
+- Cross-check every numeric spec (battery mAh, charging watts, height/width/thickness mm, weight g, refresh rate, peak brightness nits, camera MP/aperture) against GSMArena before writing it.
 
-For arrays representing checkboxes (like features, video_features, ai_features), include every single value from the schema example that applies to this phone.
-Only leave a field completely empty if the information absolutely does not exist anywhere on the internet. Use your extensive pre-trained knowledge to fill in any gaps left by the search results.
+CRITICAL ACCURACY RULES (a wrong value is worse than a missing value):
+- Base EVERY value strictly on what the live search results confirm. Do NOT rely on memory, assumptions, or "typical" values for the brand.
+- If the search does not clearly confirm a value, set it to null (numbers/strings), false (booleans), or [] (arrays). NEVER guess, approximate, round loosely, or fabricate.
+- Do not carry over specs from a different variant or a similarly named model. Confirm you are describing exactly "${phoneName}".
+- For array checkbox fields (features, video_features, ai_features, network_features, sim_types), include ONLY values you can positively confirm apply to this exact phone.
 
-You MUST return a valid JSON object matching the exact structure below. please fill maximum fields that you can but make sure they must be CORRECT. Do not wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
+COMPLETENESS:
+- Within the accuracy rules above, fill as MANY fields as the sources confirm — including deep details: GPU/CPU clocks, RAM/storage type, Bluetooth/Wi-Fi/GPS, video recording modes, camera apertures & sensor sizes, body materials, IP rating, screen protection, fingerprint type, and benchmark scores when available.
+- Do not leave a field null just to save effort — only leave it null when the sources genuinely do not confirm it.
+
+OUTPUT FORMAT:
+- Return ONLY the raw, valid JSON object. No markdown, no \`\`\`json fences, no commentary before or after.
+- Match the exact structure below.
 
 Here is the required schema:
 ${schemaString}
 `;
 
-    const rawText = await callPerplexity(
-      "You are an expert mobile technology database architect and highly accurate researcher. Return ONLY raw JSON without markdown.",
-      prompt
+    const result = await callPerplexity(
+      "You are an expert mobile technology database architect and a meticulous, fact-checking researcher. You only state specs confirmed by live web search, and you use null rather than guessing. Return ONLY raw JSON without markdown.",
+      prompt,
+      { temperature: 0.1, searchContextSize: 'high', returnCitations: true }
     );
 
+    const rawText = result?.content ?? null;
     if (!rawText) {
       console.error("AI response did not contain text.");
       return null;
     }
 
-    // Safely extract JSON between the first { and last }
-    const match = rawText.match(/\{[\s\S]*\}/);
-    if (!match) {
-      console.error("Could not find JSON object in AI response:", rawText);
+    if (result?.citations?.length || result?.searchResults?.length) {
+      console.log(
+        `[aiFillPhone] "${phoneName}" grounded on ${result.citations.length || result.searchResults.length} source(s).`
+      );
+    }
+
+    let data = parseJsonObject(rawText);
+    if (!data) {
+      console.error("Could not parse JSON object from AI response:", rawText.slice(0, 500));
       return null;
     }
 
-    const jsonText = match[0];
-    return JSON.parse(jsonText);
+    // Guarantee that core specs are never silently missing: if any critical
+    // field came back empty, run one targeted follow-up search to fill just those.
+    data = await backfillCriticalSpecs(phoneName, data);
+
+    return data;
   } catch (error) {
     console.error("Error generating data from Perplexity:", error);
     throw new Error(error.message || "Failed to generate AI Phone data");
+  }
+};
+
+// The specs a phone listing must never be missing. Each entry is a dot-path
+// into the returned object plus a human label used in the follow-up prompt.
+const CRITICAL_SPECS = [
+  { path: 'specs.display.size_inches', label: 'display size (inches)' },
+  { path: 'specs.display.resolution', label: 'display resolution' },
+  { path: 'specs.display.type', label: 'display panel type' },
+  { path: 'specs.display.refresh_rate_hz', label: 'display refresh rate (Hz)' },
+  { path: 'specs.performance.chipset', label: 'chipset / SoC' },
+  { path: 'specs.performance.ram_options_gb', label: 'RAM options (GB)' },
+  { path: 'specs.performance.storage_options_gb', label: 'storage options (GB)' },
+  { path: 'specs.camera.rear_summary', label: 'rear camera summary' },
+  { path: 'specs.camera.front_summary', label: 'front camera summary' },
+  { path: 'specs.battery.capacity_mah', label: 'battery capacity (mAh)' },
+  { path: 'specs.battery.charging_watts', label: 'wired charging (watts)' },
+  { path: 'specs.body.weight_g', label: 'weight (g)' },
+  { path: 'specs.connectivity.usb', label: 'USB type' },
+  { path: 'specs.connectivity.bluetooth', label: 'Bluetooth version' },
+  { path: 'specs.os', label: 'operating system' },
+];
+
+const getPath = (obj, path) =>
+  path.split('.').reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
+
+const setPath = (obj, path, value) => {
+  const keys = path.split('.');
+  const last = keys.pop();
+  const target = keys.reduce((acc, key) => {
+    if (acc[key] == null || typeof acc[key] !== 'object') acc[key] = {};
+    return acc[key];
+  }, obj);
+  target[last] = value;
+};
+
+const isEmptyValue = (v) =>
+  v == null || v === '' || (Array.isArray(v) && v.length === 0);
+
+// Best-effort: re-query only the critical specs that came back empty, then merge.
+// Never throws — if the follow-up fails, the original data is returned unchanged.
+const backfillCriticalSpecs = async (phoneName, data) => {
+  try {
+    const missing = CRITICAL_SPECS.filter((s) => isEmptyValue(getPath(data, s.path)));
+    if (missing.length === 0) return data;
+
+    console.log(
+      `[aiFillPhone] "${phoneName}" missing ${missing.length} core spec(s), running targeted backfill:`,
+      missing.map((m) => m.label).join(', ')
+    );
+
+    const fieldList = missing.map((m) => `- "${m.path}": ${m.label}`).join('\n');
+    const prompt = `
+Using live web search of the official manufacturer spec page and GSMArena, find ONLY these specifications for the smartphone "${phoneName}":
+${fieldList}
+
+Return ONLY a raw JSON object whose keys are the exact dot-paths above and whose values are the confirmed specs.
+- size/capacity/watts/weight/refresh rate must be numbers.
+- RAM and storage options must be arrays of numbers in GB (e.g. [8, 12]).
+- If a value cannot be confirmed from the sources, use null. NEVER guess or fabricate.
+
+Example: { "specs.battery.capacity_mah": 5000, "specs.performance.ram_options_gb": [8, 12] }
+`;
+
+    const result = await callPerplexity(
+      "You are a meticulous smartphone spec researcher. Only report specs confirmed by live web search; otherwise use null. Return ONLY raw JSON.",
+      prompt,
+      { temperature: 0.1, searchContextSize: 'high' }
+    );
+
+    const patch = parseJsonObject(result);
+    if (!patch) return data;
+
+    for (const { path } of missing) {
+      const value = patch[path];
+      if (!isEmptyValue(value)) setPath(data, path, value);
+    }
+    return data;
+  } catch (error) {
+    console.error(`[aiFillPhone] backfill failed for "${phoneName}":`, error.message);
+    return data;
   }
 };
