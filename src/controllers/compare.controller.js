@@ -109,5 +109,6 @@ export const getPopularComparisons = asyncHandler(async (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const popular = await compareService.getPopularComparisons(limit);
     
+    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
     res.status(200).json(new ApiResponse(200, popular, "Popular comparisons retrieved successfully"));
 });

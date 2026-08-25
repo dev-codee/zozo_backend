@@ -31,6 +31,7 @@ export const getHomeData = asyncHandler(async (req, res) => {
         .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices price_pkr rating status')
         .lean();
 
+    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
     res.status(200).json(new ApiResponse(200, {
         trending: trendingPhones,
         latest: latestPhones,
