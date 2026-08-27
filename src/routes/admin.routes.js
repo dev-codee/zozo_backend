@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/admin.controller.js';
 import * as adminVehicleController from '../controllers/adminVehicle.controller.js';
+import * as adminBrandController from '../controllers/adminBrand.controller.js';
 import { upload } from '../middlewares/upload.middleware.js';
 import { protectAdmin, requireRole, requirePermission } from '../middlewares/auth.middleware.js';
 
@@ -41,6 +42,12 @@ router.put('/vehicles/:id', protectAdmin, requirePermission('edit_content'), adm
 router.post('/vehicles/:id/approve', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminVehicleController.approveVehicle);
 router.post('/vehicles/:id/reject', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminVehicleController.rejectVehicle);
 router.get('/vehicles/:id/revisions', protectAdmin, adminVehicleController.getVehicleRevisions);
+
+// Brands management (shared by Mobiles & EVs)
+router.get('/brands', protectAdmin, adminBrandController.getBrandsAdmin);
+router.post('/brands', protectAdmin, requirePermission('edit_content'), adminBrandController.createBrand);
+router.put('/brands/:id', protectAdmin, requirePermission('edit_content'), adminBrandController.updateBrand);
+router.delete('/brands/:id', protectAdmin, requirePermission('delete_content'), adminBrandController.deleteBrand);
 
 // Team management
 router.get('/team', protectAdmin, requireRole(['SUPER_ADMIN']), adminController.getTeamMembers);
