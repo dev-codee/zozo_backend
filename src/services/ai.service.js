@@ -500,6 +500,8 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
   "release_date": "YYYY-MM-DD",
   "assembly_country": "e.g. China",
   "made_in": "e.g. China",
+  "country_availability": "e.g. Pakistan, China, Europe (comma separated. MUST explicitly include 'Pakistan' if available there, or exclude if not)",
+  "price_pkr": "Integer price in PKR if available in Pakistan, otherwise null",
   "specs": {
     "battery": {
       "chemistry": "e.g. LFP (Blade), NMC, NCA",
@@ -613,11 +615,12 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
     }
   },
   "pricing": {
-    "price_global_base_usd": 48500,
-    "price_global_base_cny": null,
-    "price_pkr_ex_factory": null,
-    "price_pkr_on_road": null
+    "price_global_base_usd": "Integer price in USD if available, otherwise null",
+    "price_global_base_cny": "Integer price in CNY if available, otherwise null",
+    "price_pkr_ex_factory": "Integer ex-factory price in PKR if available, otherwise null",
+    "price_pkr_on_road": "Integer on-road price in PKR if available, otherwise null"
   },
+  "description": "A comprehensive 2-3 paragraph markdown description of the EV, covering its design, performance, and key features. Use markdown formatting like bold text and bullet points if needed.",
   "tags": ["long-range", "fast-charging", "performance", "family", "budget"]
 }
         `;
@@ -640,6 +643,7 @@ CRITICAL ACCURACY RULES (a wrong value is worse than a missing value):
 COMPLETENESS:
 - Within the accuracy rules above, fill as MANY fields as the sources confirm, including deep details: battery chemistry, 800V architecture, charging curve, motor types, ADAS sensor counts, and dimensions.
 - Do not leave a field null just to save effort; only leave it null when the sources genuinely do not confirm it.
+- **PAKISTAN AVAILABILITY**: You MUST explicitly determine if this vehicle is officially available in Pakistan or if its release in Pakistan is announced. Populate \`country_availability\` with "Pakistan" if it is, and provide the PKR price in \`price_pkr\` or \`pricing.price_pkr_ex_factory\` if known. Also populate the USD price in \`pricing.price_global_base_usd\`.
 
 OUTPUT FORMAT:
 - Return ONLY the raw, valid JSON object. No markdown, no \`\`\`json fences, no commentary before or after.
