@@ -491,7 +491,7 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
   "generation": "e.g. 1st Gen Facelift",
   "vehicle_type": "BEV | PHEV | EREV | FCEV",
   "ev_category": "Car | Bike | Scooter | Cycle | Rickshaw | Truck | Van | Bus | Other",
-  "body_type": "Sedan | SUV | Crossover | Hatchback | Coupe | MPV | Pickup | Sports | Wagon | Other",
+  "body_type": "Sedan | SUV | Crossover | Hatchback | Coupe | MPV | Pickup | Sports | Wagon | Scooter | Bike | Rickshaw | Other",
   "segment": "e.g. D-Segment",
   "platform": "e.g. e-Platform 3.0 (CTB)",
   "doors": 4,
@@ -508,20 +508,15 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
       "capacity_gross_kwh": 82.56,
       "capacity_usable_kwh": 82.5,
       "system_voltage": 550,
-      "cell_format": "e.g. Prismatic Blade, 4680",
-      "integration_type": "Cell-to-Pack (CTP) | Cell-to-Body (CTB) | Module-based",
       "thermal_management": "e.g. Liquid-cooled with heat pump",
-      "preheating_support": true,
-      "swappable_battery": false,
       "warranty_years": 8,
-      "warranty_distance_km": 160000,
-      "warranty_soh_guarantee": 70
+      "warranty_distance_km": 160000
     },
     "range_and_efficiency": {
       "wltp_combined_km": 520,
-      "wltp_city_km": 600,
       "wltp_consumption_kwh_100km": 18.2,
       "epa_combined_km": null,
+      "efficiency_mpge_combined": null,
       "cltc_range_km": 650,
       "real_world_range_mild_km": 475,
       "real_world_range_cold_km": 360,
@@ -530,36 +525,24 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
     },
     "charging": {
       "ac_max_power_kw": 11,
-      "ac_phases": 3,
       "ac_port_type": "Type 2 (Mennekes) | GB/T AC | NACS",
       "ac_charge_time_0_100_hrs": 8.0,
       "dc_max_power_kw": 150,
       "dc_port_type": "CCS2 | CCS1 | NACS | GB/T DC | CHAdeMO",
       "dc_charge_time_10_80_min": 26,
-      "dc_speed_km_15min": 190,
-      "plug_and_charge": true,
       "v2l_support": true,
-      "v2l_max_power_kw": 3.3,
       "v2h_support": false,
-      "v2g_support": false,
-      "v2v_support": false
+      "v2g_support": false
     },
     "powertrain": {
       "drive_layout": "RWD | FWD | AWD | Tri-Motor AWD | Quad-Motor AWD",
       "motor_count": 2,
-      "front_motor_type": "e.g. Asynchronous Induction (ASM)",
-      "front_motor_power_hp": 218,
-      "rear_motor_type": "e.g. PMSM",
-      "rear_motor_power_hp": 313,
       "total_power_hp": 530,
       "total_power_kw": 390,
       "total_torque_nm": 670,
       "acceleration_0_100_kmh": 3.8,
-      "top_speed_kmh": 180,
-      "transmission": "e.g. Single-Speed Fixed Gear",
-      "one_pedal_driving": true,
-      "regen_modes": ["Low", "Standard", "High"],
-      "launch_control": false
+      "acceleration_0_60_mph": 3.6,
+      "top_speed_kmh": 180
     },
     "dimensions_and_weight": {
       "length_mm": 4800,
@@ -568,19 +551,16 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
       "wheelbase_mm": 2920,
       "ground_clearance_mm": 145,
       "curb_weight_kg": 2185,
-      "weight_distribution": "50:50",
       "trunk_liters": 402,
       "frunk_liters": 53,
-      "towing_braked_kg": 1500
+      "towing_braked_kg": 1500,
+      "towing_unbraked_kg": 750
     },
     "chassis_and_suspension": {
       "front_suspension": "e.g. Double Wishbone",
       "rear_suspension": "e.g. Five-Link Independent",
       "air_suspension": false,
-      "adaptive_damping": true,
       "turning_circle_m": 11.4,
-      "front_brakes": "e.g. Ventilated Discs",
-      "rear_brakes": "e.g. Ventilated Discs",
       "wheel_sizes_inches": [19],
       "tire_size": "e.g. 235/45 R19"
     },
@@ -597,7 +577,6 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
       "speaker_count": 12,
       "wireless_chargers": 2,
       "ota_updates": "Full Vehicle | Infotainment Only",
-      "keyless_tech": ["NFC Keycard", "Bluetooth App Key"],
       "heat_pump": true
     },
     "adas_and_safety": {
@@ -606,7 +585,6 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
       "airbag_count": 9,
       "autonomy_level": "Level 2 | Level 2+ | Level 3",
       "adas_system_name": "e.g. DiPilot, Tesla FSD, XPENG XNGP",
-      "adas_compute_chip": "e.g. Dual NVIDIA Orin-X",
       "lidar_count": 0,
       "camera_count": 6,
       "radar_count": 5,
@@ -617,6 +595,7 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
   "pricing": {
     "price_global_base_usd": "Integer price in USD if available, otherwise null",
     "price_global_base_cny": "Integer price in CNY if available, otherwise null",
+    "price_global_base_eur": "Integer price in EUR if available, otherwise null",
     "price_pkr_ex_factory": "Integer ex-factory price in PKR if available, otherwise null",
     "price_pkr_on_road": "Integer on-road price in PKR if available, otherwise null"
   },
