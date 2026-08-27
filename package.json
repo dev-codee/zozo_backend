@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed:pages": "node src/scripts/seedPages.js",
+    "seed:ev-brands": "node src/scripts/seedEvBrands.js",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

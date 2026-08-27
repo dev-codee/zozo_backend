@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/admin.controller.js';
+import * as adminVehicleController from '../controllers/adminVehicle.controller.js';
 import { upload } from '../middlewares/upload.middleware.js';
 import { protectAdmin, requireRole, requirePermission } from '../middlewares/auth.middleware.js';
 
@@ -27,6 +28,19 @@ router.delete('/reviews/:id', protectAdmin, requirePermission('delete_content'),
 router.post('/phones/:id/approve', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminController.approvePhone);
 router.post('/phones/:id/reject', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminController.rejectPhone);
 router.get('/phones/:id/revisions', protectAdmin, adminController.getPhoneRevisions);
+
+// EVs / Vehicles management
+router.get('/vehicles', protectAdmin, adminVehicleController.getAllVehicles);
+router.post('/vehicles', protectAdmin, requirePermission('edit_content'), adminVehicleController.createVehicle);
+router.post('/vehicles/ai-fill', protectAdmin, requirePermission('edit_content'), adminVehicleController.aiFillVehicle);
+router.post('/vehicles/ai-fill-seo', protectAdmin, requirePermission('edit_content'), adminVehicleController.aiFillVehicleSEO);
+router.get('/vehicles/check-duplicate', protectAdmin, adminVehicleController.checkVehicleDuplicate);
+router.delete('/vehicles/:id', protectAdmin, requirePermission('delete_content'), adminVehicleController.deleteVehicle);
+router.get('/vehicles/:id', protectAdmin, adminVehicleController.getVehicleById);
+router.put('/vehicles/:id', protectAdmin, requirePermission('edit_content'), adminVehicleController.updateVehicle);
+router.post('/vehicles/:id/approve', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminVehicleController.approveVehicle);
+router.post('/vehicles/:id/reject', protectAdmin, requireRole(['SUPER_ADMIN', 'MODERATOR']), adminVehicleController.rejectVehicle);
+router.get('/vehicles/:id/revisions', protectAdmin, adminVehicleController.getVehicleRevisions);
 
 // Team management
 router.get('/team', protectAdmin, requireRole(['SUPER_ADMIN']), adminController.getTeamMembers);

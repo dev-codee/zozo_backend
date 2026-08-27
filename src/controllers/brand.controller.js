@@ -4,7 +4,7 @@ import * as brandService from '../services/brand.service.js';
 import * as phoneService from '../services/phone.service.js';
 
 export const getBrands = asyncHandler(async (req, res) => {
-    const brands = await brandService.getAllBrands();
+    const brands = await brandService.getAllBrands(req.query);
     res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200');
     res.status(200).json(new ApiResponse(200, brands, "Brands fetched successfully"));
 });

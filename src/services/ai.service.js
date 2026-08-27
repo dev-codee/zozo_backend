@@ -471,6 +471,269 @@ const CRITICAL_SPECS = [
   { path: 'specs.os', label: 'operating system' },
 ];
 
+// ─── EV / VEHICLE AI GENERATION ─────────────────────────────────────────────────
+
+export const generateVehicleDataAdmin = async (vehicleName) => {
+  if (!env.PERPLEXITY_API_KEY) {
+    console.warn("Skipping AI vehicle data generation because API key is missing.");
+    return null;
+  }
+
+  try {
+    // Mirrors the Vehicle model structure (EV_SPECIFICATION_FIELDS.md). Only the
+    // fields listed here are stored; anything the model can't confirm must be null.
+    const schemaString = `
+{
+  "brand_slug": "Brand slugified (e.g. byd, tesla, xiaomi, deepal, mg)",
+  "model_name": "Core model line (e.g. Seal, Model 3, SU7)",
+  "variant_name": "Specific trim (e.g. Performance AWD, Long Range, Standard Range)",
+  "model_year": 2025,
+  "generation": "e.g. 1st Gen Facelift",
+  "vehicle_type": "BEV | PHEV | EREV | FCEV",
+  "ev_category": "Car | Bike | Scooter | Cycle | Rickshaw | Truck | Van | Bus | Other",
+  "body_type": "Sedan | SUV | Crossover | Hatchback | Coupe | MPV | Pickup | Sports | Wagon | Other",
+  "segment": "e.g. D-Segment",
+  "platform": "e.g. e-Platform 3.0 (CTB)",
+  "doors": 4,
+  "seats": 5,
+  "status": "available | upcoming | announced | rumored | discontinued",
+  "release_date": "YYYY-MM-DD",
+  "assembly_country": "e.g. China",
+  "made_in": "e.g. China",
+  "specs": {
+    "battery": {
+      "chemistry": "e.g. LFP (Blade), NMC, NCA",
+      "capacity_gross_kwh": 82.56,
+      "capacity_usable_kwh": 82.5,
+      "system_voltage": 550,
+      "cell_format": "e.g. Prismatic Blade, 4680",
+      "integration_type": "Cell-to-Pack (CTP) | Cell-to-Body (CTB) | Module-based",
+      "thermal_management": "e.g. Liquid-cooled with heat pump",
+      "preheating_support": true,
+      "swappable_battery": false,
+      "warranty_years": 8,
+      "warranty_distance_km": 160000,
+      "warranty_soh_guarantee": 70
+    },
+    "range_and_efficiency": {
+      "wltp_combined_km": 520,
+      "wltp_city_km": 600,
+      "wltp_consumption_kwh_100km": 18.2,
+      "epa_combined_km": null,
+      "cltc_range_km": 650,
+      "real_world_range_mild_km": 475,
+      "real_world_range_cold_km": 360,
+      "real_world_range_highway_km": 390,
+      "drag_coefficient_cd": 0.219
+    },
+    "charging": {
+      "ac_max_power_kw": 11,
+      "ac_phases": 3,
+      "ac_port_type": "Type 2 (Mennekes) | GB/T AC | NACS",
+      "ac_charge_time_0_100_hrs": 8.0,
+      "dc_max_power_kw": 150,
+      "dc_port_type": "CCS2 | CCS1 | NACS | GB/T DC | CHAdeMO",
+      "dc_charge_time_10_80_min": 26,
+      "dc_speed_km_15min": 190,
+      "plug_and_charge": true,
+      "v2l_support": true,
+      "v2l_max_power_kw": 3.3,
+      "v2h_support": false,
+      "v2g_support": false,
+      "v2v_support": false
+    },
+    "powertrain": {
+      "drive_layout": "RWD | FWD | AWD | Tri-Motor AWD | Quad-Motor AWD",
+      "motor_count": 2,
+      "front_motor_type": "e.g. Asynchronous Induction (ASM)",
+      "front_motor_power_hp": 218,
+      "rear_motor_type": "e.g. PMSM",
+      "rear_motor_power_hp": 313,
+      "total_power_hp": 530,
+      "total_power_kw": 390,
+      "total_torque_nm": 670,
+      "acceleration_0_100_kmh": 3.8,
+      "top_speed_kmh": 180,
+      "transmission": "e.g. Single-Speed Fixed Gear",
+      "one_pedal_driving": true,
+      "regen_modes": ["Low", "Standard", "High"],
+      "launch_control": false
+    },
+    "dimensions_and_weight": {
+      "length_mm": 4800,
+      "width_mm": 1875,
+      "height_mm": 1460,
+      "wheelbase_mm": 2920,
+      "ground_clearance_mm": 145,
+      "curb_weight_kg": 2185,
+      "weight_distribution": "50:50",
+      "trunk_liters": 402,
+      "frunk_liters": 53,
+      "towing_braked_kg": 1500
+    },
+    "chassis_and_suspension": {
+      "front_suspension": "e.g. Double Wishbone",
+      "rear_suspension": "e.g. Five-Link Independent",
+      "air_suspension": false,
+      "adaptive_damping": true,
+      "turning_circle_m": 11.4,
+      "front_brakes": "e.g. Ventilated Discs",
+      "rear_brakes": "e.g. Ventilated Discs",
+      "wheel_sizes_inches": [19],
+      "tire_size": "e.g. 235/45 R19"
+    },
+    "cockpit_and_tech": {
+      "cockpit_os": "e.g. BYD DiLink, Tesla OS, Xiaomi HyperOS",
+      "cockpit_chip": "e.g. Snapdragon 8295 / 8155",
+      "center_screen_inches": 15.6,
+      "center_screen_features": "e.g. Rotatable touchscreen",
+      "driver_cluster_inches": 10.25,
+      "hud": "None | W-HUD | AR-HUD",
+      "apple_carplay": "Wireless | Wired | None",
+      "android_auto": "Wireless | Wired | None",
+      "audio_brand": "e.g. Dynaudio",
+      "speaker_count": 12,
+      "wireless_chargers": 2,
+      "ota_updates": "Full Vehicle | Infotainment Only",
+      "keyless_tech": ["NFC Keycard", "Bluetooth App Key"],
+      "heat_pump": true
+    },
+    "adas_and_safety": {
+      "euro_ncap_stars": 5,
+      "nhtsa_stars": null,
+      "airbag_count": 9,
+      "autonomy_level": "Level 2 | Level 2+ | Level 3",
+      "adas_system_name": "e.g. DiPilot, Tesla FSD, XPENG XNGP",
+      "adas_compute_chip": "e.g. Dual NVIDIA Orin-X",
+      "lidar_count": 0,
+      "camera_count": 6,
+      "radar_count": 5,
+      "ultrasonic_count": 12,
+      "features": ["Adaptive Cruise Control", "Lane Centering", "AEB", "Blind Spot Detection", "360 Camera"]
+    }
+  },
+  "pricing": {
+    "price_global_base_usd": 48500,
+    "price_global_base_cny": null,
+    "price_pkr_ex_factory": null,
+    "price_pkr_on_road": null
+  },
+  "tags": ["long-range", "fast-charging", "performance", "family", "budget"]
+}
+        `;
+
+    const prompt = `
+You are an expert electric-vehicle (EV) database architect and a meticulous, fact-checking automotive researcher.
+Your task is to produce a comprehensive JSON object containing the specifications for the electric vehicle & specific trim: "${vehicleName}".
+
+RESEARCH METHOD (do this before answering):
+- Perform live web search of AUTHORITATIVE sources ONLY: the official manufacturer spec page, EV-Database (ev-database.org), and reputable outlets (InsideEVs, Electrek, CarWow).
+- Treat the official manufacturer spec sheet as the source of truth. If sources disagree, prefer the official spec sheet, then EV-Database.
+- Cross-check every numeric spec (usable kWh, DC kW, WLTP/CLTC km, 0-100 km/h, hp/kW/Nm, dimensions mm, curb weight kg) before writing it.
+- Make sure you are describing exactly this variant/trim of "${vehicleName}", not a different trim that shares the model name.
+
+CRITICAL ACCURACY RULES (a wrong value is worse than a missing value):
+- Base EVERY value strictly on what the live search confirms. Do NOT rely on memory, assumptions, or "typical" values for the brand.
+- If the search does not clearly confirm a value, set it to null (numbers/strings), false (booleans), or [] (arrays). NEVER guess, approximate, or fabricate.
+- For array fields (regen_modes, keyless_tech, features, wheel_sizes_inches, tags), include ONLY values you can positively confirm apply to this exact vehicle.
+
+COMPLETENESS:
+- Within the accuracy rules above, fill as MANY fields as the sources confirm, including deep details: battery chemistry, 800V architecture, charging curve, motor types, ADAS sensor counts, and dimensions.
+- Do not leave a field null just to save effort; only leave it null when the sources genuinely do not confirm it.
+
+OUTPUT FORMAT:
+- Return ONLY the raw, valid JSON object. No markdown, no \`\`\`json fences, no commentary before or after.
+- Match the exact structure below.
+
+Here is the required schema:
+${schemaString}
+`;
+
+    const result = await callPerplexity(
+      "You are an expert EV database architect and a meticulous, fact-checking researcher. You only state specs confirmed by live web search, and you use null rather than guessing. Return ONLY raw JSON without markdown.",
+      prompt,
+      { temperature: 0.1, searchContextSize: 'high', returnCitations: true }
+    );
+
+    const rawText = result?.content ?? null;
+    if (!rawText) {
+      console.error("AI response did not contain text.");
+      return null;
+    }
+
+    if (result?.citations?.length || result?.searchResults?.length) {
+      console.log(
+        `[aiFillVehicle] "${vehicleName}" grounded on ${result.citations.length || result.searchResults.length} source(s).`
+      );
+    }
+
+    const data = parseJsonObject(rawText);
+    if (!data) {
+      console.error("Could not parse JSON object from AI vehicle response:", rawText.slice(0, 500));
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error generating vehicle data from Perplexity:", error);
+    throw new Error(error.message || "Failed to generate AI vehicle data");
+  }
+};
+
+export const generateVehicleSEO = async (vehicleData) => {
+  if (!env.PERPLEXITY_API_KEY) {
+    console.warn("Skipping AI vehicle SEO generation because API key is missing.");
+    return null;
+  }
+
+  try {
+    const currentYear = new Date().getFullYear();
+    const prompt = `
+You are an expert SEO specialist for electric vehicles in Pakistan. Given the following EV data, generate highly optimized SEO fields.
+
+Vehicle Name: ${vehicleData.name}
+Brand: ${vehicleData.brand_slug}
+Price PKR: ${vehicleData.price_pkr || 'N/A'}
+Specs: ${JSON.stringify(vehicleData.specs, null, 2)}
+
+Return a valid JSON object with the following schema exactly (no markdown formatting, just raw JSON). Ensure all arrays contain strings except for ai_faq which contains objects.
+
+{
+  "ai_seo_title": "Title in the exact format '${vehicleData.name} Price in Pakistan & Specs ${currentYear}'. Do NOT append the brand name 'Zozo'. Always end with the year ${currentYear}.",
+  "ai_meta_description": "Compelling meta description (under 160 chars)",
+  "ai_faq": [
+    { "question": "Question 1", "answer": "Answer 1" },
+    { "question": "Question 2", "answer": "Answer 2" },
+    { "question": "Question 3", "answer": "Answer 3" },
+    { "question": "Question 4", "answer": "Answer 4" },
+    { "question": "Question 5", "answer": "Answer 5" }
+  ],
+  "ai_editorial_summary": "A 2-3 sentence editorial overview of the vehicle for buyers",
+  "ai_pros": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5"],
+  "ai_cons": ["Con 1", "Con 2", "Con 3", "Con 4", "Con 5"],
+  "ai_buying_advice": "A short paragraph on who should buy this EV and if it's worth the price.",
+  "ai_snippet": "A very short 1-sentence featured snippet highlighting the best feature (range, charging or performance).",
+  "ai_suggested_tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "ai_keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+}
+`;
+
+    const rawJSON = await callPerplexity(
+      "You are an expert SEO specialist for electric vehicles in Pakistan. Output only raw JSON.",
+      prompt
+    );
+
+    if (!rawJSON) throw new Error("Empty response from AI");
+
+    const parsed = parseJsonObject(rawJSON);
+    if (!parsed) throw new Error("Failed to parse JSON from AI response");
+    return parsed;
+  } catch (error) {
+    console.error("Error generating vehicle SEO from Perplexity:", error);
+    throw new Error(error.message || "Failed to generate AI vehicle SEO data");
+  }
+};
+
 const getPath = (obj, path) =>
   path.split('.').reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
 
