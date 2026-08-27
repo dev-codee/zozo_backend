@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { Phone } from '../models/Phone.model.js';
+import { Vehicle } from '../models/Vehicle.model.js';
 import { AdminUser } from '../models/AdminUser.model.js';
 import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
@@ -13,7 +14,8 @@ import jwt from 'jsonwebtoken';
 export const getDashboardStats = asyncHandler(async (req, res) => {
     // Calls admin services to gather stats
     const totalPhones = await Phone.countDocuments();
-    res.status(200).json(new ApiResponse(200, { totalPhones }, "Dashboard stats fetched"));
+    const totalVehicles = await Vehicle.countDocuments();
+    res.status(200).json(new ApiResponse(200, { totalPhones, totalVehicles }, "Dashboard stats fetched"));
 });
 
 export const uploadImage = asyncHandler(async (req, res) => {

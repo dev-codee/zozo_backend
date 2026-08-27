@@ -31,7 +31,7 @@ const blogSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-blogSchema.index({ slug: 1 });
+// (slug is already indexed via unique: true)
 blogSchema.index({ status: 1 });
 
 export const Blog = mongoose.model('Blog', blogSchema);

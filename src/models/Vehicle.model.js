@@ -58,13 +58,13 @@ const vehicleSchema = new mongoose.Schema({
     // alongside the finer automotive body_type.
     ev_category: {
         type: String,
-        enum: ['Car', 'Bike', 'Scooter', 'Cycle', 'Rickshaw', 'Truck', 'Van', 'Bus', 'Other'],
+        enum: ['Car', 'Bike', 'Scooter', 'Cycle'],
         default: 'Car',
         index: true,
     },
     body_type: {
         type: String,
-        enum: ['Sedan', 'SUV', 'Crossover', 'Hatchback', 'Coupe', 'MPV', 'Pickup', 'Sports', 'Wagon', 'Scooter', 'Bike', 'Rickshaw', 'Other'],
+        enum: ['Sedan', 'SUV', 'Crossover', 'Hatchback', 'Coupe', 'MPV', 'Pickup', 'Sports', 'Wagon', 'Scooter', 'Bike', 'Other'],
     },
     segment: { type: String },
     platform: { type: String },
@@ -253,7 +253,7 @@ const vehicleSchema = new mongoose.Schema({
     approvalStatus: {
         type: String,
         enum: ['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED'],
-        default: 'DRAFT',
+        default: 'APPROVED',
     },
     importSource: { type: String },
     lastSync: { type: Date },
@@ -262,7 +262,7 @@ const vehicleSchema = new mongoose.Schema({
         enum: ['SUCCESS', 'FAILED', 'PENDING'],
     },
 
-    is_published: { type: Boolean, default: false },
+    is_published: { type: Boolean, default: true },
 }, { timestamps: true });
 
 // ─── Indexes ────────────────────────────────────────────────────────────────────

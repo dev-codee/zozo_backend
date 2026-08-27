@@ -18,6 +18,6 @@ const pageSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-pageSchema.index({ slug: 1 });
+// (slug is already indexed via unique: true)
 
 export const Page = mongoose.model('Page', pageSchema);

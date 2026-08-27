@@ -29,7 +29,7 @@ const comparisonSchema = new mongoose.Schema(
     }
 );
 
-comparisonSchema.index({ slugs: 1 });
+// (slugs already indexed on field)
 
 const Comparison = mongoose.model('Comparison', comparisonSchema);
 

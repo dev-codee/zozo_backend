@@ -21,7 +21,8 @@ export const createVehicle = asyncHandler(async (req, res) => {
         return res.status(409).json(new ApiResponse(409, null, "A vehicle with this name already exists"));
     }
 
-    // Content tracking
+    // Content tracking & defaults
+    vehicleData.is_published = vehicleData.is_published !== undefined ? vehicleData.is_published : true;
     if (req.adminUser) {
         vehicleData.createdBy = req.adminUser._id;
         vehicleData.updatedBy = req.adminUser._id;
@@ -31,6 +32,8 @@ export const createVehicle = asyncHandler(async (req, res) => {
         } else {
             vehicleData.approvalStatus = vehicleData.approvalStatus || 'APPROVED';
         }
+    } else {
+        vehicleData.approvalStatus = vehicleData.approvalStatus || 'APPROVED';
     }
 
     // Auto-generate image alt text
