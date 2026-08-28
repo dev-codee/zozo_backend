@@ -123,48 +123,109 @@ export const getRelatedVehicles = async (slug) => {
     .limit(6)
     .lean();
 
-    // 2. Same category / competitors (e.g. Car vs Car, Bike vs Bike)
-    const categoryFilter = {
+    // 2. Strict same-type matcher (Scooter vs Bike vs Car vs Cycle)
+    const isScooter = 
+        (vehicle.ev_category && /^scooter$/i.test(vehicle.ev_category)) || 
+        (vehicle.body_type && /^scooter$/i.test(vehicle.body_type));
+
+    const isBike = !isScooter && (
+        (vehicle.ev_category && /^bike$/i.test(vehicle.ev_category)) || 
+        (vehicle.body_type && /^bike$/i.test(vehicle.body_type))
+    );
+
+    const isCycle = !isScooter && !isBike && (
+        (vehicle.ev_category && /^cycle$/i.test(vehicle.ev_category)) || 
+        (vehicle.body_type && /^cycle$/i.test(vehicle.body_type))
+    );
+
+    let sameTypeMatcher = {};
+    if (isScooter) {
+        sameTypeMatcher = {
+            $or: [
+                { ev_category: { $regex: /^scooter$/i } },
+                { body_type: { $regex: /^scooter$/i } }
+            ]
+        };
+    } else if (isBike) {
+        sameTypeMatcher = {
+            $and: [
+                { ev_category: { $not: { $regex: /^scooter$/i } } },
+                { body_type: { $not: { $regex: /^scooter$/i } } },
+                {
+                    $or: [
+                        { ev_category: { $regex: /^bike$/i } },
+                        { body_type: { $regex: /^bike$/i } }
+                    ]
+                }
+            ]
+        };
+    } else if (isCycle) {
+        sameTypeMatcher = {
+            $or: [
+                { ev_category: { $regex: /^cycle$/i } },
+                { body_type: { $regex: /^cycle$/i } }
+            ]
+        };
+    } else {
+        // Cars and 4-wheelers (strictly excludes two-wheelers/cycles)
+        sameTypeMatcher = {
+            $and: [
+                { ev_category: { $not: { $regex: /^(scooter|bike|cycle)$/i } } },
+                { body_type: { $not: { $regex: /^(scooter|bike|cycle)$/i } } }
+            ]
+        };
+    }
+
+    const typeBaseFilter = {
         ...baseFilter,
-        ev_category: vehicle.ev_category || 'Car',
+        ...sameTypeMatcher,
     };
-    if (vehicle.body_type) {
-        categoryFilter.body_type = vehicle.body_type;
-    }
-    let byCategory = await Vehicle.find(categoryFilter)
-        .select(listProjection)
-        .limit(6)
-        .lean();
 
-    // Fallback if specific body_type has few results
-    if (byCategory.length < 3 && vehicle.ev_category) {
-        byCategory = await Vehicle.find({
-            ...baseFilter,
-            ev_category: vehicle.ev_category,
+    // 3. Competitors: Same type with price difference of max ±30,000 PKR
+    let competitors = [];
+    const targetPrice = vehicle.price_pkr;
+
+    if (targetPrice && targetPrice > 0) {
+        const minPrice = Math.max(0, targetPrice - 30000);
+        const maxPrice = targetPrice + 30000;
+
+        competitors = await Vehicle.find({
+            ...typeBaseFilter,
+            price_pkr: { $gte: minPrice, $lte: maxPrice }
         })
         .select(listProjection)
         .limit(6)
         .lean();
     }
 
-    // 3. Similar Price Range (within ± 25% if price_pkr exists)
-    let byPrice = [];
-    if (vehicle.price_pkr && vehicle.price_pkr > 0) {
-        const minP = Math.round(vehicle.price_pkr * 0.75);
-        const maxP = Math.round(vehicle.price_pkr * 1.25);
-        byPrice = await Vehicle.find({
-            ...baseFilter,
-            price_pkr: { $gte: minP, $lte: maxP },
+    // If fewer than 4 vehicles within exact ±30,000, supplement with the closest same-type vehicles by price
+    if (competitors.length < 4) {
+        const existingIds = competitors.map(c => c._id);
+        const remainingLimit = 6 - competitors.length;
+
+        const candidateVehicles = await Vehicle.find({
+            ...typeBaseFilter,
+            _id: { $nin: existingIds }
         })
         .select(listProjection)
-        .limit(6)
+        .limit(20)
         .lean();
+
+        if (targetPrice && targetPrice > 0) {
+            candidateVehicles.sort((a, b) => {
+                const diffA = Math.abs((a.price_pkr || 0) - targetPrice);
+                const diffB = Math.abs((b.price_pkr || 0) - targetPrice);
+                return diffA - diffB;
+            });
+        }
+
+        competitors = [...competitors, ...candidateVehicles.slice(0, remainingLimit)];
     }
 
     return {
         by_brand: byBrand,
-        by_category: byCategory,
-        by_price: byPrice,
+        by_category: competitors,
+        by_price: competitors,
     };
 };
 
