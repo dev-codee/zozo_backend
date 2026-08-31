@@ -138,6 +138,11 @@ export const getRelatedVehicles = async (slug) => {
         (vehicle.body_type && /^cycle$/i.test(vehicle.body_type))
     );
 
+    const isRickshaw = !isScooter && !isBike && !isCycle && (
+        (vehicle.ev_category && /^rickshaw$/i.test(vehicle.ev_category)) || 
+        (vehicle.body_type && /^rickshaw$/i.test(vehicle.body_type))
+    );
+
     let sameTypeMatcher = {};
     if (isScooter) {
         sameTypeMatcher = {
@@ -166,12 +171,19 @@ export const getRelatedVehicles = async (slug) => {
                 { body_type: { $regex: /^cycle$/i } }
             ]
         };
+    } else if (isRickshaw) {
+        sameTypeMatcher = {
+            $or: [
+                { ev_category: { $regex: /^rickshaw$/i } },
+                { body_type: { $regex: /^rickshaw$/i } }
+            ]
+        };
     } else {
-        // Cars and 4-wheelers (strictly excludes two-wheelers/cycles)
+        // Cars and 4-wheelers (strictly excludes two-wheelers/cycles/rickshaws)
         sameTypeMatcher = {
             $and: [
-                { ev_category: { $not: { $regex: /^(scooter|bike|cycle)$/i } } },
-                { body_type: { $not: { $regex: /^(scooter|bike|cycle)$/i } } }
+                { ev_category: { $not: { $regex: /^(scooter|bike|cycle|rickshaw)$/i } } },
+                { body_type: { $not: { $regex: /^(scooter|bike|cycle|rickshaw)$/i } } }
             ]
         };
     }

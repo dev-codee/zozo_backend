@@ -58,13 +58,13 @@ const vehicleSchema = new mongoose.Schema({
     // alongside the finer automotive body_type.
     ev_category: {
         type: String,
-        enum: ['Car', 'Bike', 'Scooter', 'Cycle'],
+        enum: ['Car', 'Bike', 'Scooter', 'Cycle', 'Rickshaw'],
         default: 'Car',
         index: true,
     },
     body_type: {
         type: String,
-        enum: ['Sedan', 'SUV', 'Crossover', 'Hatchback', 'Coupe', 'MPV', 'Pickup', 'Sports', 'Wagon', 'Scooter', 'Bike', 'Other'],
+        enum: ['Sedan', 'SUV', 'Crossover', 'Hatchback', 'Coupe', 'MPV', 'Pickup', 'Sports', 'Wagon', 'Scooter', 'Bike', 'Rickshaw', 'Other'],
     },
     segment: { type: String },
     platform: { type: String },
