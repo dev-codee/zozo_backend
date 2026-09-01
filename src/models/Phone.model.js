@@ -21,6 +21,12 @@ const priceEntrySchema = new mongoose.Schema({
     last_checked: { type: Date, default: Date.now },
 }, { _id: false });
 
+const priceHistoryEntrySchema = new mongoose.Schema({
+    date: { type: Date, default: Date.now },
+    price_pkr: { type: Number },
+    source: { type: String },
+}, { _id: false });
+
 const sourceRefSchema = new mongoose.Schema({
     source_name: { type: String, required: true },
     source_url: { type: String, required: true },
@@ -59,6 +65,10 @@ const phoneSchema = new mongoose.Schema({
     tags: [String],
     video_url: { type: String },
     price_pkr: { type: Number },
+
+    // Append-only log of headline-price changes, used to draw the price-history
+    // graph on the product detail page. Maintained server-side via buildPriceHistory.
+    price_history: [priceHistoryEntrySchema],
 
     images: [imageAssetSchema],
 

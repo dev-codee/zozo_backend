@@ -7,6 +7,7 @@ import { AdminUser } from '../models/AdminUser.model.js';
 import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
 import { slugify } from '../utils/slugify.js';
+import { buildPriceHistory, seedPriceHistory } from '../utils/priceHistory.js';
 import { generatePhoneDataAdmin, generatePhoneSEO } from '../services/ai.service.js';
 import Review from '../models/Review.model.js';
 import jwt from 'jsonwebtoken';
@@ -70,6 +71,9 @@ export const createPhone = asyncHandler(async (req, res) => {
             alt_text: img.alt_text || `${phoneData.name} Price in Pakistan - ZOZO`
         }));
     }
+
+    // Seed the price-history log with the initial price (client value ignored).
+    phoneData.price_history = seedPriceHistory(phoneData.price_pkr);
 
     const newPhone = await Phone.create(phoneData);
 
@@ -219,6 +223,19 @@ export const updatePhone = asyncHandler(async (req, res) => {
             ...img,
             alt_text: img.alt_text || `${phoneName} Price in Pakistan - ZOZO`
         }));
+    }
+
+    // Price history is server-authoritative — never let the client set it directly.
+    // Only append a point when the headline price actually changes.
+    delete updateData.price_history;
+    if (updateData.price_pkr !== undefined) {
+        const nextHistory = buildPriceHistory(
+            previousPhone.price_history,
+            previousPhone.price_pkr,
+            updateData.price_pkr,
+            { source: 'manual', prevDate: previousPhone.updatedAt }
+        );
+        if (nextHistory) updateData.price_history = nextHistory;
     }
 
     const phone = await Phone.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
