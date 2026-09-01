@@ -17,6 +17,9 @@ import reviewRoutes from './review.routes.js';
 import adRoutes from './ad.routes.js';
 import benchmarkRoutes from './benchmark.routes.js';
 import vehicleRoutes from './vehicle.routes.js';
+import compareVehicleRoutes from './compareVehicle.routes.js';
+import vehicleReviewRoutes from './vehicleReview.routes.js';
+import vehicleVoteRoutes from './vehicleVote.routes.js';
 
 const router = Router();
 
@@ -37,6 +40,10 @@ router.use('/pages', pageRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/ads', adRoutes);
 router.use('/benchmarks', benchmarkRoutes);
+// Mount before '/vehicles' so the compare paths aren't captured by the '/:slug' route.
+router.use('/vehicles/compare', compareVehicleRoutes);
 router.use('/vehicles', vehicleRoutes);
+router.use('/vehicle-reviews', vehicleReviewRoutes);
+router.use('/vehicle-votes', vehicleVoteRoutes);
 
 export default router;

@@ -217,6 +217,67 @@ Guidelines for key_differences:
   }
 };
 
+export const generateAIVehicleComparison = async (vehicles) => {
+  if (!env.PERPLEXITY_API_KEY) {
+    console.warn("Skipping AI vehicle comparison because API key is missing.");
+    return null;
+  }
+
+  try {
+    const vehicleDetails = vehicles.map(v => ({
+      name: v.name,
+      slug: v.slug,
+      vehicle_type: v.vehicle_type,
+      ev_category: v.ev_category,
+      body_type: v.body_type,
+      price_pkr: v.price_pkr,
+      specs: v.specs,
+    }));
+
+    const prompt = `
+You are an expert electric-vehicle (EV) reviewer. Please provide a detailed and professional comparison between the following electric vehicles:
+${JSON.stringify(vehicleDetails, null, 2)}
+
+Your task is to generate a comprehensive comparison output as a strict JSON object. Do not include markdown blocks like \`\`\`json. Return ONLY the raw valid JSON.
+
+The required JSON schema is:
+{
+  "verdict": "Provide a very concise, punchy, and highly precise final verdict (maximum 2-3 sentences). Get straight to the point about which EV is better for whom (e.g. range vs performance vs value). Maintain a premium, professional, and objective tone.",
+  "key_differences": {
+    "vehicle-slug-1": [
+      "Advantage 1 (e.g., 'Offers 22% more real-world range (475 vs 390 km)')",
+      "Advantage 2 (e.g., 'Charges 10-80% in 26 min vs 39 min on DC fast charging')"
+    ],
+    "vehicle-slug-2": [
+      "Advantage 1",
+      "Advantage 2"
+    ]
+  }
+}
+
+Guidelines for key_differences:
+- For each vehicle, provide an array of 3-6 concise bullet points highlighting its strictly better advantages over the other vehicle(s).
+- Use specific percentage differences and exact spec values where possible (e.g. 'Accelerates 0-100 km/h 1.2s quicker (3.8s vs 5.0s)', 'Has 15 kWh larger usable battery').
+- Focus on the metrics that matter for EVs: range, efficiency, charging speed, battery size, power/torque, acceleration, ADAS/safety, tech, and price.
+- Only list factual advantages based on the specs provided.
+- Ensure the keys in 'key_differences' perfectly match the 'slug' values provided in the vehicle details array.
+- DO NOT use dollar prices or any other currency. ALL pricing mentioned MUST be in Pakistani Rupees (PKR) only.
+`;
+
+    const rawText = await callPerplexity(
+      "You are an expert electric-vehicle reviewer.",
+      prompt
+    );
+
+    if (!rawText) return null;
+
+    return parseJsonObject(rawText);
+  } catch (error) {
+    console.error("Error generating vehicle comparison from Perplexity:", error);
+    return null;
+  }
+};
+
 export const generatePhoneSEO = async (phoneData) => {
   if (!env.PERPLEXITY_API_KEY) {
     console.warn("Skipping AI SEO generation because API key is missing.");
