@@ -20,9 +20,9 @@ export const getAllPhones = async (query) => {
 
     // Handle budget / max_price filter
     if (query.max_price || query.min_price) {
-        filter['prices.price_pkr'] = {};
-        if (query.min_price) filter['prices.price_pkr'].$gte = Number(query.min_price);
-        if (query.max_price) filter['prices.price_pkr'].$lte = Number(query.max_price);
+        filter.price_pkr = {};
+        if (query.min_price) filter.price_pkr.$gte = Number(query.min_price);
+        if (query.max_price) filter.price_pkr.$lte = Number(query.max_price);
     }
 
     // Handle brand filter (comma separated slugs)
@@ -124,9 +124,9 @@ export const getAllPhones = async (query) => {
     } else if (query.sort === 'trending') {
         sortQuery = { updated_at: -1 };
     } else if (query.sort === 'price_asc') {
-        sortQuery = { 'prices.price_pkr': 1 };
+        sortQuery = { price_pkr: 1 };
     } else if (query.sort === 'price_desc') {
-        sortQuery = { 'prices.price_pkr': -1 };
+        sortQuery = { price_pkr: -1 };
     }
 
     // Stable tiebreaker: the primary sort keys above (release_date, updated_at,

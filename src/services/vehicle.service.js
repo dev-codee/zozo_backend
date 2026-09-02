@@ -29,8 +29,9 @@ export const getAllVehicles = async (query) => {
     }
 
     // Handle brand filter
-    if (query.brand) {
-        const brands = query.brand.split(',').map(b => new RegExp('^' + b.trim() + '$', 'i'));
+    const brandQuery = query.brand || query.brand_slug;
+    if (brandQuery) {
+        const brands = brandQuery.split(',').map(b => new RegExp('^' + b.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i'));
         filter.brand_slug = { $in: brands };
     }
 

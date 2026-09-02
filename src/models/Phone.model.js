@@ -192,8 +192,9 @@ const phoneSchema = new mongoose.Schema({
 // ─── Indexes ───────────────────────────────────────────────────────────────────
 
 phoneSchema.index({ name: 'text' });
-phoneSchema.index({ 'prices.price_pkr': 1 });
-phoneSchema.index({ brand_slug: 1, 'prices.price_pkr': 1 });
+phoneSchema.index({ price_pkr: 1 });
+phoneSchema.index({ brand_slug: 1, price_pkr: 1 });
+phoneSchema.index({ approvalStatus: 1, price_pkr: 1 });
 phoneSchema.index({ 'specs.performance.ram_options_gb': 1 });
 phoneSchema.index({ 'specs.performance.storage_options_gb': 1 });
 phoneSchema.index({ status: 1 });
