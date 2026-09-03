@@ -140,6 +140,11 @@ const phoneSchema = new mongoose.Schema({
         count: { type: Number, default: 0 },
     },
 
+    // Tracks the total number of times this phone's detail page has been viewed.
+    // Incremented atomically (via $inc) on every getPhoneBySlug call.
+    // Used to determine "most popular" phones per brand in Pakistan.
+    view_count: { type: Number, default: 0, index: true },
+
     seo: {
         // Manual SEO Fields
         meta_title: String,
@@ -202,5 +207,8 @@ phoneSchema.index({ approvalStatus: 1, brand_slug: 1 });
 phoneSchema.index({ tags: 1 });
 phoneSchema.index({ updated_at: -1 });
 phoneSchema.index({ release_date: -1 });
+// Enables efficient "most popular phones for a given brand" queries
+phoneSchema.index({ brand_slug: 1, view_count: -1 });
+phoneSchema.index({ approvalStatus: 1, view_count: -1 });
 
 export const Phone = mongoose.model('Phone', phoneSchema);

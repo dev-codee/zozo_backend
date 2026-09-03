@@ -4,7 +4,7 @@ import { generatePhoneDescription } from './ai.service.js';
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
     price_pkr: 1, prices: 1, status: 1, release_date: 1, 
-    rating: 1, description: 1, updated_at: 1,
+    rating: 1, description: 1, updated_at: 1, view_count: 1,
     'specs.performance.chipset': 1, 'specs.performance.ram_options_gb': 1, 'specs.performance.storage_options_gb': 1,
     'specs.camera.rear_summary': 1, 'specs.camera.front_summary': 1,
     'specs.battery.capacity_mah': 1, 'specs.battery.charging_watts': 1,
@@ -123,6 +123,8 @@ export const getAllPhones = async (query) => {
         sortQuery = { release_date: -1 };
     } else if (query.sort === 'trending') {
         sortQuery = { updated_at: -1 };
+    } else if (query.sort === 'popular') {
+        sortQuery = { view_count: -1 };
     } else if (query.sort === 'price_asc') {
         sortQuery = { price_pkr: 1 };
     } else if (query.sort === 'price_desc') {
@@ -165,8 +167,14 @@ export const getAllPhones = async (query) => {
 
 
 export const getPhoneBySlug = async (slug) => {
-    // DB logic to fetch a single phone
-    const phone = await Phone.findOne({ slug, approvalStatus: 'APPROVED' });
+    // Atomically increment view_count and return the updated document.
+    // findOneAndUpdate with $inc is a single round-trip to MongoDB and
+    // is safe under concurrent requests (no race conditions).
+    const phone = await Phone.findOneAndUpdate(
+        { slug, approvalStatus: 'APPROVED' },
+        { $inc: { view_count: 1 } },
+        { new: true }  // return the doc AFTER the increment
+    );
     return phone;
 };
 
