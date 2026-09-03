@@ -186,12 +186,16 @@ export const getPhoneDescription = async (slug) => {
         return phone.description;
     }
 
-    const generatedDescription = await generatePhoneDescription(phone.name, phone.specs, phone.tags);
-    if (generatedDescription) {
-        phone.description = generatedDescription;
-        await phone.save();
-        return generatedDescription;
-    }
+    // AI description generation temporarily disabled.
+    // To re-enable, remove the early return below and uncomment the block that follows.
+    return null;
+
+    // const generatedDescription = await generatePhoneDescription(phone.name, phone.specs, phone.tags);
+    // if (generatedDescription) {
+    //     phone.description = generatedDescription;
+    //     await phone.save();
+    //     return generatedDescription;
+    // }
 
     return null;
 };
