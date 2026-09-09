@@ -3,7 +3,7 @@ import env from '../config/env.js';
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 
 if (!env.PERPLEXITY_API_KEY || env.PERPLEXITY_API_KEY === 'your_perplexity_api_key_here') {
-  console.warn("PERPLEXITY_API_KEY is not set or invalid. AI descriptions will not work.");
+  console.warn("PERPLEXITY_API_KEY is not set or invalid. AI features will not work.");
 }
 
 const callPerplexity = async (systemPrompt, userPrompt, options = {}) => {
@@ -80,81 +80,9 @@ const parseJsonObject = (rawText) => {
   }
 };
 
-export const generatePhoneDescription = async (phoneName, specs, tags = []) => {
-  if (!env.PERPLEXITY_API_KEY) {
-    console.warn("Skipping AI description generation because API key is missing.");
-    return null;
-  }
-
-  try {
-    const isFlagship = (tags || []).some(t => t.toLowerCase() === 'flagship' || t.toLowerCase() === 'premium') ||
-      (specs?.performance?.chipset && (
-        specs.performance.chipset.toLowerCase().includes('apple a18 pro') ||
-        specs.performance.chipset.toLowerCase().includes('apple a17 pro') ||
-        specs.performance.chipset.toLowerCase().includes('snapdragon 8 elite') ||
-        specs.performance.chipset.toLowerCase().includes('snapdragon 8 gen 3') ||
-        specs.performance.chipset.toLowerCase().includes('dimensity 9400') ||
-        specs.performance.chipset.toLowerCase().includes('dimensity 9300')
-      ));
-
-    const prompt = `
-You are a senior smartphone reviewer for a consumer tech buying guide.
-Write an honest, no-fluff review for: **${phoneName}**
-
-Use the following specifications as a reference:
-${JSON.stringify(specs, null, 2)}
-
-Before writing, first think through:
-1. Who is the exact buyer for this phone? (skill level, budget, primary use case)
-2. What are the 3-5 decision factors that actually matter for this phone (not every spec, only the ones that change the buying decision)
-3. What are 2-3 real, currently-available alternatives in the same price bracket?
-
-Then write the review exactly with this structure:
-
-- [Introductory Verdict without a heading]
-One line summarizing who should buy this and who should avoid it. No fluff. Do NOT use a heading for this.
-
-- "## Who **${phoneName}** is actually for"
-Be specific, not "great for everyone". e.g., "Mobile gamers on a budget" or "Photography enthusiasts who don't want to carry a DSLR".
-
-- "## Key Strengths of **${phoneName}**"
-Provide 3-5 concrete strengths with numbers where possible (battery hours, benchmark scores, camera sensor size, charging speeds, price-to-spec ratio). Use bullet points (using the - character).
-
-- "## Honest Trade-offs of **${phoneName}**"
-Provide 2-3 honest trade-offs or dealbreakers — do not write purely positive copy. Use bullet points (using the - character).
-
-- "## Top Alternatives to **${phoneName}**"
-A quick bulleted list of 2-3 alternatives, stating why someone might buy them instead. Use bullet points.
-
-- "## How we evaluated **${phoneName}**"
-A short paragraph explaining the criteria used to judge this phone.
-
-- "## FAQs about **${phoneName}**" 
-Generate a list of exactly 5 common questions and answers about this phone. Format them strictly as Q&A pairs (e.g. "Q: Does it support eSIM?\nA: Yes, it supports...").
-
-- "## Pros & Cons of **${phoneName}**" (must be the final section)
-Under the heading "## Pros & Cons of **${phoneName}**", list Pros (at least 4 bullet points starting with "+ ") and Cons (at least 3 bullet points starting with "- "). Do not mix them; write all Pros first, then all Cons.
-
-Constraints:
-- No generic filler phrases ("great choice for anyone," "packed with features").
-- Every claim about performance needs a concrete number or comparison point based on the provided specs.
-- Write for a reader who is considering this specific phone — they need to know if it's the right pick or if they should look elsewhere.
-- Format the response using clean Markdown with level 2 (##) headings for each section.
-- DO NOT use em dashes ("—") or other punctuation that makes the text look obviously AI-generated. The response must sound like natural human-written copy.
-- DO NOT guess or hallucinate any information. All claims must be factually correct and strictly based on the provided specifications. If a spec is missing, do not invent it.
-- DO NOT use dollar prices or any other currency. ALL pricing mentioned MUST be in Pakistani Rupees (PKR) only.
-`;
-
-    const rawText = await callPerplexity(
-      "You are a senior smartphone reviewer for a consumer tech buying guide.",
-      prompt
-    );
-
-    return rawText;
-  } catch (error) {
-    console.error("Error generating description from Perplexity:", error);
-    return null;
-  }
+export const generatePhoneDescription = async () => {
+  // AI description generation removed to prevent unnecessary token consumption
+  return null;
 };
 
 export const generateAIComparison = async (phones) => {
@@ -660,7 +588,6 @@ export const generateVehicleDataAdmin = async (vehicleName) => {
     "price_pkr_ex_factory": "Integer ex-factory price in PKR if available, otherwise null",
     "price_pkr_on_road": "Integer on-road price in PKR if available, otherwise null"
   },
-  "description": "A comprehensive 2-3 paragraph markdown description of the EV, covering its design, performance, and key features. Use markdown formatting like bold text and bullet points if needed.",
   "tags": ["long-range", "fast-charging", "performance", "family", "budget"]
 }
         `;

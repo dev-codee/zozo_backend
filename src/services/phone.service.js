@@ -1,5 +1,4 @@
 import { Phone } from '../models/Phone.model.js';
-import { generatePhoneDescription } from './ai.service.js';
 
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
@@ -182,22 +181,7 @@ export const getPhoneDescription = async (slug) => {
     const phone = await Phone.findOne({ slug, approvalStatus: 'APPROVED' });
     if (!phone) return null;
 
-    if (phone.description) {
-        return phone.description;
-    }
-
-    // AI description generation temporarily disabled.
-    // To re-enable, remove the early return below and uncomment the block that follows.
-    return null;
-
-    // const generatedDescription = await generatePhoneDescription(phone.name, phone.specs, phone.tags);
-    // if (generatedDescription) {
-    //     phone.description = generatedDescription;
-    //     await phone.save();
-    //     return generatedDescription;
-    // }
-
-    return null;
+    return phone.description || null;
 };
 
 export const getPhonesByBrandSlug = async (brandSlug) => {
