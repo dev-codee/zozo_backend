@@ -225,8 +225,8 @@ Specs: ${JSON.stringify(phoneData.specs, null, 2)}
 Return a valid JSON object with the following schema exactly (no markdown formatting, just raw JSON). Ensure all arrays contain strings except for ai_faq which contains objects.
 
 {
-  "ai_seo_title": "Title in the exact format '${phoneData.name} Latest Price in Pakistan & Specs ${currentYear}'. Do NOT append the brand name 'Zozo'. Always end with the year ${currentYear}.",
-  "ai_meta_description": "Compelling meta description (under 160 chars)",
+  "ai_seo_title": "Title in the exact format '${phoneData.name} Latest Price & Specs ${currentYear}'. NEVER mention 'Zozo' or any website brand name anywhere. Always end with the year ${currentYear}.",
+  "ai_meta_description": "Compelling meta description (under 160 chars). NEVER mention 'Zozo' or any website brand name.",
   "ai_faq": [
     { "question": "Question 1", "answer": "Answer 1" },
     { "question": "Question 2", "answer": "Answer 2" },
@@ -670,8 +670,8 @@ Specs: ${JSON.stringify(vehicleData.specs, null, 2)}
 Return a valid JSON object with the following schema exactly (no markdown formatting, just raw JSON). Ensure all arrays contain strings except for ai_faq which contains objects.
 
 {
-  "ai_seo_title": "Title in the exact format '${vehicleData.name} Price in Pakistan & Specs ${currentYear}'. Do NOT append the brand name 'Zozo'. Always end with the year ${currentYear}.",
-  "ai_meta_description": "Compelling meta description (under 160 chars)",
+  "ai_seo_title": "Title in the exact format '${vehicleData.name} Price & Specs ${currentYear}'. NEVER mention 'Zozo' or any website brand name anywhere. Always end with the year ${currentYear}.",
+  "ai_meta_description": "Compelling meta description (under 160 chars). NEVER mention 'Zozo' or any website brand name.",
   "ai_faq": [
     { "question": "Question 1", "answer": "Answer 1" },
     { "question": "Question 2", "answer": "Answer 2" },
@@ -897,8 +897,8 @@ Specs: ${JSON.stringify(earbudData.specs, null, 2)}
 
 Return a valid JSON object matching this schema exactly (no markdown formatting, just raw JSON):
 {
-  "ai_seo_title": "Title in the exact format '${earbudData.name} Price in Pakistan & Full Specs ${currentYear}'. Do NOT append the brand name 'Zozo' or '- ZOZO'. Always end with the year ${currentYear}.",
-  "ai_meta_description": "Compelling meta description under 160 characters detailing price, battery, and ANC in Pakistan",
+  "ai_seo_title": "Title in the exact format '${earbudData.name} Price & Full Specs ${currentYear}'. NEVER mention 'Zozo' or any website brand name anywhere. Always end with the year ${currentYear}.",
+  "ai_meta_description": "Compelling meta description under 160 characters detailing price, battery, and ANC. NEVER mention 'Zozo' or any website brand name.",
   "ai_suggested_tags": ["Earbuds", "TWS", "Wireless Earphones", "ANC", "${earbudData.name}"],
   "ai_keywords": ["${earbudData.name} price in Pakistan", "${earbudData.name} specs", "best earbuds in Pakistan"]
 }

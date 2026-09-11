@@ -1,4 +1,5 @@
 import { Phone } from '../models/Phone.model.js';
+import '../models/AdminUser.model.js';
 
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
@@ -173,7 +174,9 @@ export const getPhoneBySlug = async (slug) => {
         { slug, approvalStatus: 'APPROVED' },
         { $inc: { view_count: 1 } },
         { new: true }  // return the doc AFTER the increment
-    );
+    ).populate('createdBy', 'name username')
+     .populate('updatedBy', 'name username')
+     .populate('reviewer', 'name username');
     return phone;
 };
 

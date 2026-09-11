@@ -40,7 +40,7 @@ export const createVehicle = asyncHandler(async (req, res) => {
     if (Array.isArray(vehicleData.images)) {
         vehicleData.images = vehicleData.images.map((img) => ({
             ...img,
-            alt_text: img.alt_text || `${vehicleData.name} Price in Pakistan - ZOZO`,
+            alt_text: img.alt_text || `${vehicleData.name}`,
         }));
     }
 
@@ -131,7 +131,7 @@ export const updateVehicle = asyncHandler(async (req, res) => {
         const vehicleName = updateData.name || previousVehicle.name;
         updateData.images = updateData.images.map((img) => ({
             ...img,
-            alt_text: img.alt_text || `${vehicleName} Price in Pakistan - ZOZO`,
+            alt_text: img.alt_text || `${vehicleName}`,
         }));
     }
 

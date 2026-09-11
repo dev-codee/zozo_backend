@@ -59,7 +59,7 @@ export const createEarbud = asyncHandler(async (req, res) => {
     if (Array.isArray(earbudData.images)) {
         earbudData.images = earbudData.images.map((img) => ({
             ...img,
-            alt_text: img.alt_text || `${earbudData.name} Price in Pakistan - ZOZO`,
+            alt_text: img.alt_text || `${earbudData.name}`,
         }));
     }
 
@@ -176,7 +176,7 @@ export const updateEarbud = asyncHandler(async (req, res) => {
     if (Array.isArray(updateData.images)) {
         updateData.images = updateData.images.map((img) => ({
             ...img,
-            alt_text: img.alt_text || `${updateData.name || earbud.name} Price in Pakistan - ZOZO`,
+            alt_text: img.alt_text || `${updateData.name || earbud.name}`,
         }));
     }
 

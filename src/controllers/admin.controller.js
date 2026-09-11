@@ -70,7 +70,7 @@ export const createPhone = asyncHandler(async (req, res) => {
     if (phoneData.images && Array.isArray(phoneData.images)) {
         phoneData.images = phoneData.images.map((img, idx) => ({
             ...img,
-            alt_text: img.alt_text || `${phoneData.name} Price in Pakistan - ZOZO`
+            alt_text: img.alt_text || `${phoneData.name} Price`
         }));
     }
 
@@ -223,7 +223,7 @@ export const updatePhone = asyncHandler(async (req, res) => {
         const phoneName = updateData.name || previousPhone.name;
         updateData.images = updateData.images.map((img, idx) => ({
             ...img,
-            alt_text: img.alt_text || `${phoneName} Price in Pakistan - ZOZO`
+            alt_text: img.alt_text || `${phoneName} Price`
         }));
     }
 
