@@ -365,16 +365,10 @@ export const generatePhoneDataAdmin = async (phoneName) => {
       "software": {
         "ui": "", "security_patch": "", "upgrade_promise": "", "years_updates": "", "bootloader": "", "rootable": false
       },
-      "benchmarks": {
-        "antutu": "", "geekbench": "", "3dmark": "", "pcmark": "", "gfxbench": "", "ai_benchmark": "", "dxomark": "", "battery_test": "", "charging_test": ""
-      },
-      "gaming": {
-        "pubg_fps": "", "cod_fps": "", "free_fire_fps": "", "genshin_fps": "", "heating": "", "throttle": "", "cooling": "", "game_mode": false, "triggers": false
-      },
       "colors": "Titanium Black, Titanium Gray"
     }
   },
-  "tags": ["gamers", "camera", "flagship"] // pick from: gamers, students, camera, battery, flagship, mid-range, budget (only those that strictly apply)
+  "tags": ["students", "camera", "battery", "flagship", "mid-range", "budget"]
 }
         `;
 
@@ -393,8 +387,14 @@ CRITICAL ACCURACY RULES (a wrong value is worse than a missing value):
 - Do not carry over specs from a different variant or a similarly named model. Confirm you are describing exactly "${phoneName}".
 - For array checkbox fields (features, video_features, ai_features, network_features, sim_types), include ONLY values you can positively confirm apply to this exact phone.
 
+STRICT CONTENT RESTRICTIONS:
+- NEVER generate, estimate, or simulate benchmark scores (AnTuTu, Geekbench, DXOMARK, 3DMark, PCMark).
+- NEVER generate or fabricate gaming FPS numbers (PUBG, COD, Free Fire, Genshin).
+- NEVER generate synthetic battery test hours, charging test times, heating claims ("Heating: Controlled"), or thermal throttling claims.
+- NEVER generate first-person testing phrases like "We tested", "How we evaluated", or fabricated camera experience narratives.
+
 COMPLETENESS:
-- Within the accuracy rules above, fill as MANY fields as the sources confirm — including deep details: GPU/CPU clocks, RAM/storage type, Bluetooth/Wi-Fi/GPS, video recording modes, camera apertures & sensor sizes, body materials, IP rating, screen protection, fingerprint type, and benchmark scores when available.
+- Within the accuracy rules above, fill as MANY verified technical hardware fields as the sources confirm — including deep details: GPU/CPU clocks, RAM/storage type, Bluetooth/Wi-Fi/GPS, video recording modes, camera apertures & sensor sizes, body materials, IP rating, screen protection, fingerprint type.
 - Do not leave a field null just to save effort — only leave it null when the sources genuinely do not confirm it.
 
 OUTPUT FORMAT:
