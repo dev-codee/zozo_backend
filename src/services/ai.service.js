@@ -897,7 +897,7 @@ Specs: ${JSON.stringify(earbudData.specs, null, 2)}
 
 Return a valid JSON object matching this schema exactly (no markdown formatting, just raw JSON):
 {
-  "ai_seo_title": "${earbudData.name} Price in Pakistan & Full Specs ${currentYear}",
+  "ai_seo_title": "Title in the exact format '${earbudData.name} Price in Pakistan & Full Specs ${currentYear}'. Do NOT append the brand name 'Zozo' or '- ZOZO'. Always end with the year ${currentYear}.",
   "ai_meta_description": "Compelling meta description under 160 characters detailing price, battery, and ANC in Pakistan",
   "ai_faq": [
     { "question": "What is the price of ${earbudData.name} in Pakistan?", "answer": "Detailed answer including price and availability." },

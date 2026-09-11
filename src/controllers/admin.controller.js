@@ -3,6 +3,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { Phone } from '../models/Phone.model.js';
 import { Vehicle } from '../models/Vehicle.model.js';
+import { Earbud } from '../models/Earbud.model.js';
 import { AdminUser } from '../models/AdminUser.model.js';
 import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
@@ -16,7 +17,8 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     // Calls admin services to gather stats
     const totalPhones = await Phone.countDocuments();
     const totalVehicles = await Vehicle.countDocuments();
-    res.status(200).json(new ApiResponse(200, { totalPhones, totalVehicles }, "Dashboard stats fetched"));
+    const totalEarbuds = await Earbud.countDocuments();
+    res.status(200).json(new ApiResponse(200, { totalPhones, totalVehicles, totalEarbuds }, "Dashboard stats fetched"));
 });
 
 export const uploadImage = asyncHandler(async (req, res) => {
