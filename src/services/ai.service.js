@@ -899,18 +899,6 @@ Return a valid JSON object matching this schema exactly (no markdown formatting,
 {
   "ai_seo_title": "Title in the exact format '${earbudData.name} Price in Pakistan & Full Specs ${currentYear}'. Do NOT append the brand name 'Zozo' or '- ZOZO'. Always end with the year ${currentYear}.",
   "ai_meta_description": "Compelling meta description under 160 characters detailing price, battery, and ANC in Pakistan",
-  "ai_faq": [
-    { "question": "What is the price of ${earbudData.name} in Pakistan?", "answer": "Detailed answer including price and availability." },
-    { "question": "Does ${earbudData.name} have Active Noise Cancellation (ANC)?", "answer": "Answer based on specs." },
-    { "question": "How long does the battery last on ${earbudData.name}?", "answer": "Answer on earbuds playtime and case total." },
-    { "question": "Is ${earbudData.name} water resistant?", "answer": "Answer mentioning the IP rating." },
-    { "question": "Does ${earbudData.name} support dual device connection (multipoint)?", "answer": "Answer based on specs." }
-  ],
-  "ai_summary": "A 2-3 sentence overview highlighting audio quality, ANC, and battery life.",
-  "ai_pros": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5"],
-  "ai_cons": ["Con 1", "Con 2", "Con 3"],
-  "ai_buying_advice": "A short paragraph explaining who this earbud is best suited for and whether it offers great value for money in Pakistan.",
-  "ai_snippet": "1-sentence quick summary of the earbud's standout selling point.",
   "ai_suggested_tags": ["Earbuds", "TWS", "Wireless Earphones", "ANC", "${earbudData.name}"],
   "ai_keywords": ["${earbudData.name} price in Pakistan", "${earbudData.name} specs", "best earbuds in Pakistan"]
 }
