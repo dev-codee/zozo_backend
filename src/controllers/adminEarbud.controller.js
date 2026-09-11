@@ -5,10 +5,30 @@ import { EarbudRevision } from '../models/EarbudRevision.model.js';
 import { slugify } from '../utils/slugify.js';
 import { generateEarbudDataAdmin, generateEarbudSEO } from '../services/ai.service.js';
 
+// ─── HELPER ──────────────────────────────────────────────────────────────────────
+
+const sanitizeEarbudData = (data) => {
+    if (!data) return data;
+    if (data.specs && data.specs.in_the_box) {
+        if (typeof data.specs.in_the_box === 'string') {
+            data.specs.in_the_box = data.specs.in_the_box.split(',').map(s => s.trim()).filter(Boolean);
+        } else if (Array.isArray(data.specs.in_the_box)) {
+            data.specs.in_the_box = data.specs.in_the_box.flatMap(item => {
+                if (typeof item === 'string') return [item.trim()];
+                if (item && typeof item === 'object') return Object.values(item).map(v => String(v).trim());
+                return [];
+            }).filter(Boolean);
+        } else if (typeof data.specs.in_the_box === 'object') {
+            data.specs.in_the_box = Object.values(data.specs.in_the_box).map(v => String(v).trim()).filter(Boolean);
+        }
+    }
+    return data;
+};
+
 // ─── CREATE ──────────────────────────────────────────────────────────────────────
 
 export const createEarbud = asyncHandler(async (req, res) => {
-    const earbudData = req.body;
+    const earbudData = sanitizeEarbudData(req.body);
 
     if (!earbudData.name) {
         return res.status(400).json(new ApiResponse(400, null, "Earbud name is required"));
@@ -124,7 +144,7 @@ export const getEarbudById = asyncHandler(async (req, res) => {
 
 export const updateEarbud = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = sanitizeEarbudData(req.body);
 
     const earbud = await Earbud.findById(id);
     if (!earbud) {
