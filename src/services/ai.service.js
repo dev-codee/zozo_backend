@@ -765,3 +765,169 @@ Example: { "specs.battery.capacity_mah": 5000, "specs.performance.ram_options_gb
     return data;
   }
 };
+
+export const generateEarbudDataAdmin = async (earbudName, brandSlug = '') => {
+  if (!env.PERPLEXITY_API_KEY) {
+    console.warn("Skipping AI earbud generation because API key is missing.");
+    return null;
+  }
+
+  try {
+    const prompt = `
+You are a meticulous technical researcher for consumer audio products and True Wireless Stereo (TWS) earbuds in Pakistan.
+Using live web search, retrieve the authentic, accurate specifications and Pakistan market pricing for: "${earbudName}" (Brand: ${brandSlug || 'auto-detect'}).
+
+Return ONLY a valid JSON object matching this schema exactly (raw JSON, no markdown code block fences, no prose):
+{
+  "name": "${earbudName}",
+  "brand_slug": "${brandSlug || 'lowercase brand slug'}",
+  "model_number": "official model number if available or empty string",
+  "release_date": "YYYY-MM-DD or empty string",
+  "status": "available",
+  "wearing_type": "In-Ear",
+  "colors": ["Black", "White"],
+  "description": "Comprehensive markdown description highlighting sound signature, ANC performance, battery life, and overall build.",
+  "price_pkr": 15000,
+  "tags": ["TWS", "Earbuds", "ANC", "Wireless"],
+  "specs": {
+    "audio": {
+      "driver_type": "Dynamic Driver",
+      "driver_size_mm": 11,
+      "frequency_min_hz": 20,
+      "frequency_max_hz": 20000,
+      "impedance_ohms": 16,
+      "sensitivity_db": 102,
+      "hi_res_audio": false,
+      "spatial_audio": "Spatial Audio or None",
+      "sound_features": ["Custom EQ", "Bass Boost"]
+    },
+    "noise_cancellation": {
+      "has_anc": true,
+      "anc_depth_db": 48,
+      "anc_type": "Hybrid ANC",
+      "transparency_mode": true,
+      "enc_call_noise_reduction": true,
+      "mic_count_total": 6,
+      "mic_count_per_earbud": 3,
+      "wind_noise_reduction": true,
+      "mic_tech_features": ["AI Noise Reduction", "Beamforming"]
+    },
+    "battery": {
+      "earbud_battery_mah": 55,
+      "case_battery_mah": 500,
+      "playtime_earbuds_anc_off_hrs": 10,
+      "playtime_earbuds_anc_on_hrs": 7,
+      "total_playtime_with_case_hrs": 40,
+      "charging_port": "USB Type-C",
+      "fast_charging": true,
+      "fast_charge_summary": "10 mins charge = 2 hours playtime",
+      "earbud_charge_time_mins": 60,
+      "case_charge_time_mins": 120,
+      "wireless_charging": false
+    },
+    "connectivity": {
+      "bluetooth_version": "5.3",
+      "bluetooth_range_meters": 10,
+      "codecs": ["SBC", "AAC", "LDAC"],
+      "multipoint_pairing": true,
+      "google_fast_pair": true,
+      "low_latency_gaming_mode": true,
+      "latency_ms": 55,
+      "app_support": "Official App Name"
+    },
+    "physical": {
+      "water_resistance": "IP54",
+      "case_water_resistance": "IPX2",
+      "earbud_weight_g": 4.8,
+      "case_weight_g": 42,
+      "total_weight_g": 51.6,
+      "earbud_dimensions_mm": "approx dimensions",
+      "case_dimensions_mm": "approx dimensions"
+    },
+    "controls": {
+      "control_type": "Touch Controls",
+      "volume_control": true,
+      "in_ear_detection": true,
+      "voice_assistant": ["Siri", "Google Assistant"],
+      "extra_features": ["Find My Earbuds"]
+    },
+    "in_the_box": [
+      "Earbuds (Left & Right)",
+      "Charging Case",
+      "Silicone Ear Tips (S/M/L)",
+      "USB Type-C Cable",
+      "User Manual"
+    ]
+  }
+}
+Note: If any numeric spec is unknown, use null or a realistic estimated integer rather than guessing arbitrary strings.
+`;
+
+    const result = await callPerplexity(
+      "You are an expert audio engineer and meticulous consumer tech researcher. Output only raw JSON.",
+      prompt,
+      { temperature: 0.1, searchContextSize: 'high', returnCitations: true }
+    );
+
+    const rawText = result?.content ?? null;
+    if (!rawText) return null;
+
+    return parseJsonObject(rawText);
+  } catch (error) {
+    console.error("Error generating earbud data from Perplexity:", error);
+    throw new Error(error.message || "Failed to generate AI earbud data");
+  }
+};
+
+export const generateEarbudSEO = async (earbudData) => {
+  if (!env.PERPLEXITY_API_KEY) {
+    console.warn("Skipping AI earbud SEO generation because API key is missing.");
+    return null;
+  }
+
+  try {
+    const currentYear = new Date().getFullYear();
+    const prompt = `
+You are an expert SEO specialist for audio and tech gadgets in Pakistan. Given the following earbud data, generate highly optimized SEO fields.
+
+Earbud Name: ${earbudData.name}
+Brand: ${earbudData.brand_slug}
+Price PKR: ${earbudData.price_pkr || 'N/A'}
+Specs: ${JSON.stringify(earbudData.specs, null, 2)}
+
+Return a valid JSON object matching this schema exactly (no markdown formatting, just raw JSON):
+{
+  "ai_seo_title": "${earbudData.name} Price in Pakistan & Full Specs ${currentYear}",
+  "ai_meta_description": "Compelling meta description under 160 characters detailing price, battery, and ANC in Pakistan",
+  "ai_faq": [
+    { "question": "What is the price of ${earbudData.name} in Pakistan?", "answer": "Detailed answer including price and availability." },
+    { "question": "Does ${earbudData.name} have Active Noise Cancellation (ANC)?", "answer": "Answer based on specs." },
+    { "question": "How long does the battery last on ${earbudData.name}?", "answer": "Answer on earbuds playtime and case total." },
+    { "question": "Is ${earbudData.name} water resistant?", "answer": "Answer mentioning the IP rating." },
+    { "question": "Does ${earbudData.name} support dual device connection (multipoint)?", "answer": "Answer based on specs." }
+  ],
+  "ai_summary": "A 2-3 sentence overview highlighting audio quality, ANC, and battery life.",
+  "ai_pros": ["Pro 1", "Pro 2", "Pro 3", "Pro 4", "Pro 5"],
+  "ai_cons": ["Con 1", "Con 2", "Con 3"],
+  "ai_buying_advice": "A short paragraph explaining who this earbud is best suited for and whether it offers great value for money in Pakistan.",
+  "ai_snippet": "1-sentence quick summary of the earbud's standout selling point.",
+  "ai_suggested_tags": ["Earbuds", "TWS", "Wireless Earphones", "ANC", "${earbudData.name}"],
+  "ai_keywords": ["${earbudData.name} price in Pakistan", "${earbudData.name} specs", "best earbuds in Pakistan"]
+}
+`;
+
+    const rawJSON = await callPerplexity(
+      "You are an expert SEO specialist for consumer tech in Pakistan. Output only raw JSON.",
+      prompt
+    );
+
+    if (!rawJSON) throw new Error("Empty response from AI");
+    const parsed = parseJsonObject(rawJSON);
+    if (!parsed) throw new Error("Failed to parse JSON from AI response");
+    return parsed;
+  } catch (error) {
+    console.error("Error generating earbud SEO from Perplexity:", error);
+    throw new Error(error.message || "Failed to generate AI earbud SEO data");
+  }
+};
+

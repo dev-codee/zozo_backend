@@ -1,13 +1,12 @@
 import { Brand } from '../models/Brand.model.js';
 import { Phone } from '../models/Phone.model.js';
 import { Vehicle } from '../models/Vehicle.model.js';
+import { Earbud } from '../models/Earbud.model.js';
 
 export const getAllBrands = async (query = {}) => {
-    // EV brands are explicitly type 'ev'. Everything else (including legacy brands
-    // with no `type` field) is treated as the phone vertical, so public phone
-    // pages that call /brands without a type never see EV brands.
+    // EV brands are explicitly type 'ev'.
     if (query.type === 'ev') {
-        const brands = await Brand.find({ type: 'ev' }).lean();
+        const brands = await Brand.find({ type: 'ev' }).sort({ name: 1 }).lean();
 
         const vehicleCounts = await Vehicle.aggregate([
             { $match: { approvalStatus: 'APPROVED' } },
@@ -25,7 +24,35 @@ export const getAllBrands = async (query = {}) => {
         }));
     }
 
-    const brands = await Brand.find({ type: { $ne: 'ev' } }).lean();
+    // Earbud brands: brands explicitly marked 'earbud', or general tech/phone brands that also make earbuds
+    if (query.type === 'earbud' || query.type === 'earbuds') {
+        const earbudCounts = await Earbud.aggregate([
+            { $match: { approvalStatus: 'APPROVED' } },
+            { $group: { _id: "$brand_slug", count: { $sum: 1 } } }
+        ]);
+
+        const countMap = {};
+        earbudCounts.forEach(ec => {
+            if (ec._id) countMap[ec._id.toLowerCase()] = ec.count;
+        });
+
+        const activeSlugs = Object.keys(countMap);
+        // Include any brand typed as 'earbud' OR any brand currently having approved earbuds
+        const brands = await Brand.find({
+            $or: [
+                { type: 'earbud' },
+                { slug: { $in: activeSlugs } },
+                { type: { $ne: 'ev' } } // allow selecting existing phone brands like Apple, Samsung, etc. in admin/filter
+            ]
+        }).sort({ name: 1 }).lean();
+
+        return brands.map(brand => ({
+            ...brand,
+            total_earbuds: countMap[brand.slug?.toLowerCase()] || 0
+        }));
+    }
+
+    const brands = await Brand.find({ type: { $ne: 'ev' } }).sort({ name: 1 }).lean();
 
     const phoneCounts = await Phone.aggregate([
         { $match: { approvalStatus: 'APPROVED' } },
@@ -46,6 +73,5 @@ export const getAllBrands = async (query = {}) => {
 };
 
 export const getBrandBySlug = async (slug) => {
-    // DB logic to fetch a single brand
     return await Brand.findOne({ slug });
 };

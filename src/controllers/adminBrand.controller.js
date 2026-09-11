@@ -3,6 +3,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { Brand } from '../models/Brand.model.js';
 import { Phone } from '../models/Phone.model.js';
 import { Vehicle } from '../models/Vehicle.model.js';
+import { Earbud } from '../models/Earbud.model.js';
 import { slugify } from '../utils/slugify.js';
 
 // ─── LIST (with usage counts) ────────────────────────────────────────────────────
@@ -11,29 +12,33 @@ export const getBrandsAdmin = asyncHandler(async (req, res) => {
     const { type, search } = req.query;
 
     const query = {};
-    // Legacy brands (no type) are treated as 'phone'.
     if (type === 'ev') query.type = 'ev';
-    else if (type === 'phone') query.type = { $ne: 'ev' };
+    else if (type === 'earbud') query.type = 'earbud';
+    else if (type === 'phone') query.type = { $in: ['phone', null, undefined] };
     if (search) query.name = { $regex: search, $options: 'i' };
 
     const brands = await Brand.find(query).sort({ name: 1 }).lean();
 
-    // Attach how many phones / vehicles reference each brand slug.
-    const [phoneCounts, vehicleCounts] = await Promise.all([
+    // Attach how many phones / vehicles / earbuds reference each brand slug.
+    const [phoneCounts, vehicleCounts, earbudCounts] = await Promise.all([
         Phone.aggregate([{ $group: { _id: "$brand_slug", count: { $sum: 1 } } }]),
         Vehicle.aggregate([{ $group: { _id: "$brand_slug", count: { $sum: 1 } } }]),
+        Earbud.aggregate([{ $group: { _id: "$brand_slug", count: { $sum: 1 } } }]),
     ]);
 
     const phoneMap = {};
     phoneCounts.forEach(p => { if (p._id) phoneMap[p._id.toLowerCase()] = p.count; });
     const vehicleMap = {};
     vehicleCounts.forEach(v => { if (v._id) vehicleMap[v._id.toLowerCase()] = v.count; });
+    const earbudMap = {};
+    earbudCounts.forEach(e => { if (e._id) earbudMap[e._id.toLowerCase()] = e.count; });
 
     const data = brands.map(b => ({
         ...b,
         type: b.type || 'phone',
         phone_count: phoneMap[b.slug?.toLowerCase()] || 0,
         vehicle_count: vehicleMap[b.slug?.toLowerCase()] || 0,
+        earbud_count: earbudMap[b.slug?.toLowerCase()] || 0,
     }));
 
     res.status(200).json(new ApiResponse(200, data, "Brands fetched successfully"));
@@ -55,10 +60,14 @@ export const createBrand = asyncHandler(async (req, res) => {
         return res.status(409).json(new ApiResponse(409, null, "A brand with this name already exists"));
     }
 
+    let brandType = 'phone';
+    if (type === 'ev') brandType = 'ev';
+    else if (type === 'earbud') brandType = 'earbud';
+
     const brand = await Brand.create({
         name,
         slug,
-        type: type === 'ev' ? 'ev' : 'phone',
+        type: brandType,
         logo: logo || undefined,
         description: description || undefined,
     });
@@ -83,12 +92,14 @@ export const updateBrand = asyncHandler(async (req, res) => {
         if (clash) {
             return res.status(409).json(new ApiResponse(409, null, "A brand with this name already exists"));
         }
-        // Slug is a foreign key on Phone/Vehicle; renaming the display name is safe,
-        // but changing the slug would orphan existing products. Keep the slug stable.
         brand.name = name;
     }
 
-    if (type !== undefined) brand.type = type === 'ev' ? 'ev' : 'phone';
+    if (type !== undefined) {
+        if (type === 'ev') brand.type = 'ev';
+        else if (type === 'earbud') brand.type = 'earbud';
+        else brand.type = 'phone';
+    }
     if (logo !== undefined) brand.logo = logo;
     if (description !== undefined) brand.description = description;
 
@@ -108,14 +119,15 @@ export const deleteBrand = asyncHandler(async (req, res) => {
     }
 
     // Block deletion while products still reference this brand slug.
-    const [phoneInUse, vehicleInUse] = await Promise.all([
+    const [phoneInUse, vehicleInUse, earbudInUse] = await Promise.all([
         Phone.countDocuments({ brand_slug: brand.slug }),
         Vehicle.countDocuments({ brand_slug: brand.slug }),
+        Earbud.countDocuments({ brand_slug: brand.slug }),
     ]);
-    const inUse = phoneInUse + vehicleInUse;
+    const inUse = phoneInUse + vehicleInUse + earbudInUse;
     if (inUse > 0) {
         return res.status(409).json(new ApiResponse(409, null,
-            `Cannot delete: ${inUse} product(s) still use this brand (${phoneInUse} phone(s), ${vehicleInUse} EV(s)).`));
+            `Cannot delete: ${inUse} product(s) still use this brand (${phoneInUse} phone(s), ${vehicleInUse} EV(s), ${earbudInUse} earbud(s)).`));
     }
 
     await Brand.findByIdAndDelete(id);

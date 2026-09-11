@@ -20,6 +20,7 @@ import vehicleRoutes from './vehicle.routes.js';
 import compareVehicleRoutes from './compareVehicle.routes.js';
 import vehicleReviewRoutes from './vehicleReview.routes.js';
 import vehicleVoteRoutes from './vehicleVote.routes.js';
+import earbudRoutes from './earbud.routes.js';
 
 const router = Router();
 
@@ -45,5 +46,6 @@ router.use('/vehicles/compare', compareVehicleRoutes);
 router.use('/vehicles', vehicleRoutes);
 router.use('/vehicle-reviews', vehicleReviewRoutes);
 router.use('/vehicle-votes', vehicleVoteRoutes);
+router.use('/earbuds', earbudRoutes);
 
 export default router;
