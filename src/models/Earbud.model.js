@@ -180,6 +180,9 @@ const earbudSchema = new mongoose.Schema({
         ai_snippet: String,
         ai_suggested_tags: [String],
         ai_keywords: [String],
+        // When false, the product page emits <meta name="robots" content="noindex">
+        // and is excluded from the sitemap.
+        is_indexable: { type: Boolean, default: true },
     },
 
     sources: [sourceRefSchema],
