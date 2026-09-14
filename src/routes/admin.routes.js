@@ -18,6 +18,7 @@ router.get('/phones', protectAdmin, adminController.getAllPhones);
 router.post('/phones', protectAdmin, requirePermission('edit_content'), adminController.createPhone);
 router.post('/phones/ai-fill', protectAdmin, requirePermission('edit_content'), adminController.aiFillPhone);
 router.post('/phones/ai-fill-seo', protectAdmin, requirePermission('edit_content'), adminController.aiFillPhoneSEO);
+router.post('/phones/research-specs', protectAdmin, requirePermission('edit_content'), adminController.researchPhoneSpecs);
 router.get('/phones/check-duplicate', protectAdmin, adminController.checkDuplicate);
 router.delete('/phones/:id', protectAdmin, requirePermission('delete_content'), adminController.deletePhone);
 router.get('/phones/:id', protectAdmin, adminController.getPhoneById);

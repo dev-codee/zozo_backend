@@ -281,6 +281,32 @@ export const aiFillPhone = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, aiData, "AI data generated successfully"));
 });
 
+export const researchPhoneSpecs = asyncHandler(async (req, res) => {
+    const { phoneName, modelNumber } = req.body;
+    if (!phoneName) {
+        return res.status(400).json(new ApiResponse(400, null, "Phone name is required"));
+    }
+
+    const n8nResponse = await fetch('http://localhost:5678/webhook/research-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            product_name: phoneName,
+            model_number: modelNumber || '',
+            product_id: 'admin-research',
+            category: 'electronics'
+        }),
+        signal: AbortSignal.timeout(60000)
+    });
+
+    if (!n8nResponse.ok) {
+        return res.status(503).json(new ApiResponse(503, null, "Research service unavailable. Make sure n8n is running."));
+    }
+
+    const researchData = await n8nResponse.json();
+    res.status(200).json(new ApiResponse(200, researchData, "Specs researched successfully"));
+});
+
 export const aiFillPhoneSEO = asyncHandler(async (req, res) => {
     const { phoneName, brand_slug, price_pkr, specs } = req.body;
     if (!phoneName) {
