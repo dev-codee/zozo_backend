@@ -287,7 +287,7 @@ export const researchPhoneSpecs = asyncHandler(async (req, res) => {
         return res.status(400).json(new ApiResponse(400, null, "Phone name is required"));
     }
 
-    const n8nResponse = await fetch('http://localhost:5678/webhook/research-product', {
+    const n8nResponse = await fetch('http://n8n-n8n-1:5678/webhook/research-product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -300,7 +300,7 @@ export const researchPhoneSpecs = asyncHandler(async (req, res) => {
     });
 
     if (!n8nResponse.ok) {
-        return res.status(503).json(new ApiResponse(503, null, "Research service unavailable. Make sure n8n is running."));
+        return res.status(503).json(new ApiResponse(503, null, "Research service unavailable. Check n8n is running and workflow is active."));
     }
 
     const researchData = await n8nResponse.json();
