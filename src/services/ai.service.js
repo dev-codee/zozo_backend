@@ -1,4 +1,5 @@
 import env from '../config/env.js';
+import { sanitizeSpecs } from '../utils/sanitizeSpecs.js';
 
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 
@@ -433,7 +434,9 @@ ${schemaString}
     // field came back empty, run one targeted follow-up search to fill just those.
     data = await backfillCriticalSpecs(phoneName, data);
 
-    return data;
+    // Normalize the LLM output: the model sometimes emits the string "null" (or
+    // "N/A"/"-") instead of real JSON null, which would later render verbatim.
+    return sanitizeSpecs(data);
   } catch (error) {
     console.error("Error generating data from Perplexity:", error);
     throw new Error(error.message || "Failed to generate AI Phone data");
@@ -644,7 +647,7 @@ ${schemaString}
       return null;
     }
 
-    return data;
+    return sanitizeSpecs(data);
   } catch (error) {
     console.error("Error generating vehicle data from Perplexity:", error);
     throw new Error(error.message || "Failed to generate AI vehicle data");
@@ -872,7 +875,7 @@ Note: If any numeric spec is unknown, use null or a realistic estimated integer 
     const rawText = result?.content ?? null;
     if (!rawText) return null;
 
-    return parseJsonObject(rawText);
+    return sanitizeSpecs(parseJsonObject(rawText));
   } catch (error) {
     console.error("Error generating earbud data from Perplexity:", error);
     throw new Error(error.message || "Failed to generate AI earbud data");

@@ -3,12 +3,16 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { Earbud } from '../models/Earbud.model.js';
 import { EarbudRevision } from '../models/EarbudRevision.model.js';
 import { slugify } from '../utils/slugify.js';
+import { sanitizeSpecs } from '../utils/sanitizeSpecs.js';
 import { generateEarbudDataAdmin, generateEarbudSEO } from '../services/ai.service.js';
 
 // ─── HELPER ──────────────────────────────────────────────────────────────────────
 
 const sanitizeEarbudData = (data) => {
     if (!data) return data;
+    // Strip placeholder junk ("null"/"N/A"/"-") from the spec tree so it is
+    // never persisted and cannot render verbatim downstream.
+    if (data.specs) data.specs = sanitizeSpecs(data.specs);
     if (data.specs && data.specs.in_the_box) {
         if (typeof data.specs.in_the_box === 'string') {
             data.specs.in_the_box = data.specs.in_the_box.split(',').map(s => s.trim()).filter(Boolean);

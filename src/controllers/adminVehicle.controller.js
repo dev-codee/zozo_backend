@@ -3,6 +3,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { Vehicle } from '../models/Vehicle.model.js';
 import { VehicleRevision } from '../models/VehicleRevision.model.js';
 import { slugify } from '../utils/slugify.js';
+import { sanitizeSpecs } from '../utils/sanitizeSpecs.js';
 import { generateVehicleDataAdmin, generateVehicleSEO } from '../services/ai.service.js';
 
 // ─── CREATE ──────────────────────────────────────────────────────────────────────
@@ -15,6 +16,9 @@ export const createVehicle = asyncHandler(async (req, res) => {
     }
 
     vehicleData.slug = slugify(vehicleData.name);
+
+    // Strip placeholder junk ("null"/"N/A"/"-") from the spec tree before save.
+    if (vehicleData.specs) vehicleData.specs = sanitizeSpecs(vehicleData.specs);
 
     const existing = await Vehicle.findOne({ slug: vehicleData.slug });
     if (existing) {
@@ -109,6 +113,9 @@ export const getVehicleById = asyncHandler(async (req, res) => {
 export const updateVehicle = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
+
+    // Strip placeholder junk ("null"/"N/A"/"-") from the spec tree before save.
+    if (updateData.specs) updateData.specs = sanitizeSpecs(updateData.specs);
 
     if (updateData.name) {
         updateData.slug = slugify(updateData.name);

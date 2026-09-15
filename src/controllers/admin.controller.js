@@ -9,6 +9,7 @@ import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
 import { slugify } from '../utils/slugify.js';
 import { buildPriceHistory, seedPriceHistory } from '../utils/priceHistory.js';
+import { sanitizeSpecs } from '../utils/sanitizeSpecs.js';
 import { generatePhoneDataAdmin, generatePhoneSEO } from '../services/ai.service.js';
 import Review from '../models/Review.model.js';
 import jwt from 'jsonwebtoken';
@@ -48,6 +49,10 @@ export const createPhone = asyncHandler(async (req, res) => {
     }
 
     phoneData.slug = slugify(phoneData.name);
+
+    // Strip placeholder junk ("null"/"N/A"/"-") from the spec tree so the DB
+    // never stores values that would render as "GPU Clock: null" downstream.
+    if (phoneData.specs) phoneData.specs = sanitizeSpecs(phoneData.specs);
 
     const existingPhone = await Phone.findOne({ slug: phoneData.slug });
     if (existingPhone) {
@@ -199,7 +204,10 @@ export const getPhoneById = asyncHandler(async (req, res) => {
 export const updatePhone = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
-    
+
+    // Strip placeholder junk ("null"/"N/A"/"-") from the spec tree on update.
+    if (updateData.specs) updateData.specs = sanitizeSpecs(updateData.specs);
+
     if (updateData.name) {
         updateData.slug = slugify(updateData.name);
         const existingPhone = await Phone.findOne({ slug: updateData.slug, _id: { $ne: id } });
