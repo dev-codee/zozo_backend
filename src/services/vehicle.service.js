@@ -3,7 +3,7 @@ import { Vehicle } from '../models/Vehicle.model.js';
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
     price_pkr: 1, prices: 1, status: 1, release_date: 1, 
-    'ratings.overall': 1, description: 1, updated_at: 1,
+    'ratings.overall': 1, description: 1, updated_at: 1, updatedAt: 1, 'seo.is_indexable': 1,
     ev_category: 1, body_type: 1,
     'specs.battery.capacity_usable_kwh': 1, 'specs.battery.capacity_gross_kwh': 1,
     'specs.range_and_efficiency.wltp_combined_km': 1, 'specs.range_and_efficiency.epa_combined_km': 1,
@@ -13,7 +13,7 @@ const listProjection = {
 
 export const getAllVehicles = async (query) => {
     let filter = {
-        approvalStatus: { $ne: 'REJECTED' }
+        approvalStatus: 'APPROVED'
     };
 
     // If a specific status filter is requested
@@ -50,7 +50,7 @@ export const getAllVehicles = async (query) => {
     }
 
     // Sorting
-    let sort = { updated_at: -1 };
+    let sort = { updatedAt: -1 };
     if (query.sort === 'price_asc') sort = { price_pkr: 1 };
     if (query.sort === 'price_desc') sort = { price_pkr: -1 };
     if (query.sort === 'newest') sort = { release_date: -1 };
@@ -61,7 +61,7 @@ export const getAllVehicles = async (query) => {
     const skip = (page - 1) * limit;
 
     const total = await Vehicle.countDocuments(filter);
-    const data = await Vehicle.find(filter, listProjection).sort(sort).skip(skip).limit(limit).lean();
+    const data = await Vehicle.find(filter, listProjection).sort({ ...sort, _id: 1 }).skip(skip).limit(limit).lean();
 
     return {
         data,
@@ -75,7 +75,7 @@ export const getAllVehicles = async (query) => {
 export const getVehicleBySlug = async (slug) => {
     const vehicle = await Vehicle.findOne({
         slug,
-        approvalStatus: { $ne: 'REJECTED' },
+        approvalStatus: 'APPROVED',
     }).lean();
 
     if (!vehicle) return null;
@@ -86,7 +86,7 @@ export const getVehicleBySlug = async (slug) => {
         variants = await Vehicle.find({
             brand_slug: vehicle.brand_slug,
             model_name: vehicle.model_name,
-            approvalStatus: { $ne: 'REJECTED' },
+            approvalStatus: 'APPROVED',
         })
         .select({
             _id: 1, name: 1, slug: 1, variant_name: 1, price_pkr: 1,
@@ -112,7 +112,7 @@ export const getRelatedVehicles = async (slug) => {
 
     const baseFilter = {
         slug: { $ne: slug },
-        approvalStatus: { $ne: 'REJECTED' },
+        approvalStatus: 'APPROVED',
     };
 
     // 1. Same brand EVs

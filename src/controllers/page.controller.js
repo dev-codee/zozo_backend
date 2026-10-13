@@ -2,8 +2,8 @@ import { Page } from '../models/Page.model.js';
 
 export const getPages = async (req, res) => {
   try {
-    const pages = await Page.find().sort({ createdAt: -1 });
-    res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200');
+    const pages = await Page.find(req.adminUser ? {} : { status: 'PUBLISHED' }).sort({ createdAt: -1 });
+    res.setHeader('Cache-Control', req.adminUser ? 'private, no-store' : 'public, s-maxage=600, stale-while-revalidate=1200');
     res.json(pages);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -12,9 +12,9 @@ export const getPages = async (req, res) => {
 
 export const getPageBySlug = async (req, res) => {
   try {
-    const page = await Page.findOne({ slug: req.params.slug });
+    const page = await Page.findOne({ slug: req.params.slug, status: 'PUBLISHED' });
     if (!page) return res.status(404).json({ message: 'Page not found' });
-    res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200');
+    res.setHeader('Cache-Control', req.adminUser ? 'private, no-store' : 'public, s-maxage=600, stale-while-revalidate=1200');
     res.json(page);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -25,7 +25,7 @@ export const getPageById = async (req, res) => {
   try {
     const page = await Page.findById(req.params.id);
     if (!page) return res.status(404).json({ message: 'Page not found' });
-    res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=1200');
+    res.setHeader('Cache-Control', req.adminUser ? 'private, no-store' : 'public, s-maxage=600, stale-while-revalidate=1200');
     res.json(page);
   } catch (error) {
     res.status(500).json({ message: error.message });

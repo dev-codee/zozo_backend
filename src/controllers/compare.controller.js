@@ -106,7 +106,7 @@ export const trackComparison = asyncHandler(async (req, res) => {
 });
 
 export const getPopularComparisons = asyncHandler(async (req, res) => {
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const limit = req.query.limit === 'all' ? 0 : (parseInt(req.query.limit, 10) || 10);
     const popular = await compareService.getPopularComparisons(limit);
     
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');

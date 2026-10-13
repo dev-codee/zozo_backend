@@ -1,9 +1,8 @@
 import { Vehicle } from '../models/Vehicle.model.js';
 import VehicleComparison from '../models/VehicleComparison.model.js';
 
-// EVs use the same "not rejected" visibility rule as the public listing
-// (vehicle.service.js) rather than the phones' strict APPROVED gate.
-const VISIBLE = { approvalStatus: { $ne: 'REJECTED' } };
+// Match the approval gate used by public product pages.
+const VISIBLE = { approvalStatus: 'APPROVED' };
 
 export const compareVehiclesList = async (vehicleSlugs) => {
     if (!vehicleSlugs || vehicleSlugs.length === 0) {

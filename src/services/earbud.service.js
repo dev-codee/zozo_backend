@@ -12,6 +12,7 @@ const listProjection = {
     rating: 1,
     description: 1,
     updatedAt: 1,
+    'seo.is_indexable': 1,
     view_count: 1,
     wearing_type: 1,
     colors: 1,
@@ -156,7 +157,7 @@ export const getEarbudBySlug = async (slug) => {
     const earbud = await Earbud.findOneAndUpdate(
         { slug, approvalStatus: 'APPROVED' },
         { $inc: { view_count: 1 } },
-        { new: true }
+        { new: true, timestamps: false }
     );
     return earbud;
 };

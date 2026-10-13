@@ -4,9 +4,10 @@ import { protectAdmin, requireRole } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
+router.get('/admin', protectAdmin, getPages);
 router.get('/', getPages);
 router.get('/slug/:slug', getPageBySlug);
-router.get('/:id', getPageById);
+router.get('/:id', protectAdmin, getPageById);
 
 // Admin only routes
 router.post('/', protectAdmin, requireRole(['SUPER_ADMIN', 'EDITOR']), createPage);

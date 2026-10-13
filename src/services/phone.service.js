@@ -4,7 +4,7 @@ import '../models/AdminUser.model.js';
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
     price_pkr: 1, prices: 1, status: 1, release_date: 1, 
-    rating: 1, description: 1, updated_at: 1, view_count: 1,
+    rating: 1, description: 1, updated_at: 1, updatedAt: 1, 'seo.is_indexable': 1, view_count: 1,
     'specs.performance.chipset': 1, 'specs.performance.ram_options_gb': 1, 'specs.performance.storage_options_gb': 1,
     'specs.camera.rear_summary': 1, 'specs.camera.front_summary': 1,
     'specs.battery.capacity_mah': 1, 'specs.battery.charging_watts': 1,
@@ -173,7 +173,7 @@ export const getPhoneBySlug = async (slug) => {
     const phone = await Phone.findOneAndUpdate(
         { slug, approvalStatus: 'APPROVED' },
         { $inc: { view_count: 1 } },
-        { new: true }  // return the doc AFTER the increment
+        { new: true, timestamps: false }  // Views are not content modifications
     ).populate('createdBy', 'name username')
      .populate('updatedBy', 'name username')
      .populate('reviewer', 'name username');
