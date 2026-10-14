@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Read(//e//**)",
+      "Read(//e/zozo/**)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT: $?\")"
+    ]
+  }
+}
