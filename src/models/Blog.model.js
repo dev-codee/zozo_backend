@@ -4,6 +4,7 @@ const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
   excerpt: { type: String },
+  coverImage: { type: String },
   body: { type: String, required: true },
   
   author: { type: String }, // For simplicity, using string. Can be linked to AdminUser later
@@ -28,6 +29,7 @@ const blogSchema = new mongoose.Schema({
     meta_title: String,
     meta_description: String,
     keywords: String,
+    is_indexable: { type: Boolean },
   }
 }, { timestamps: true });
 

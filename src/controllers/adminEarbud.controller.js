@@ -3,6 +3,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { Earbud } from '../models/Earbud.model.js';
 import { EarbudRevision } from '../models/EarbudRevision.model.js';
 import { slugify } from '../utils/slugify.js';
+import { productSlugConflict, preserveProductSlug } from '../utils/productSlug.js';
 import { sanitizeSpecs } from '../utils/sanitizeSpecs.js';
 import { generateEarbudDataAdmin, generateEarbudSEO } from '../services/ai.service.js';
 
@@ -40,9 +41,9 @@ export const createEarbud = asyncHandler(async (req, res) => {
 
     earbudData.slug = slugify(earbudData.name);
 
-    const existing = await Earbud.findOne({ slug: earbudData.slug });
-    if (existing) {
-        return res.status(409).json(new ApiResponse(409, null, "An earbud with this name already exists"));
+    const slugConflict = await productSlugConflict(earbudData.slug);
+    if (slugConflict) {
+        return res.status(409).json(new ApiResponse(409, null, slugConflict));
     }
 
     // Content tracking & defaults
@@ -150,19 +151,12 @@ export const updateEarbud = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updateData = sanitizeEarbudData(req.body);
 
+    // Published product URLs stay stable when names or submitted slugs change.
+    preserveProductSlug(updateData);
+
     const earbud = await Earbud.findById(id);
     if (!earbud) {
         return res.status(404).json(new ApiResponse(404, null, "Earbud not found"));
-    }
-
-    // Slug conflict check if name changed
-    if (updateData.name && updateData.name !== earbud.name) {
-        const newSlug = slugify(updateData.name);
-        const clash = await Earbud.findOne({ slug: newSlug, _id: { $ne: id } });
-        if (clash) {
-            return res.status(409).json(new ApiResponse(409, null, "Another earbud with this name already exists"));
-        }
-        updateData.slug = newSlug;
     }
 
     // Track price changes

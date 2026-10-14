@@ -8,6 +8,7 @@ import { AdminUser } from '../models/AdminUser.model.js';
 import { PhoneRevision } from '../models/PhoneRevision.model.js';
 import { AdminActivityLog } from '../models/AdminActivityLog.model.js';
 import { slugify } from '../utils/slugify.js';
+import { productSlugConflict, preserveProductSlug } from '../utils/productSlug.js';
 import { buildPriceHistory, seedPriceHistory } from '../utils/priceHistory.js';
 import { sanitizeSpecs } from '../utils/sanitizeSpecs.js';
 import { generatePhoneDataAdmin, generatePhoneSEO } from '../services/ai.service.js';
@@ -54,9 +55,9 @@ export const createPhone = asyncHandler(async (req, res) => {
     // never stores values that would render as "GPU Clock: null" downstream.
     if (phoneData.specs) phoneData.specs = sanitizeSpecs(phoneData.specs);
 
-    const existingPhone = await Phone.findOne({ slug: phoneData.slug });
-    if (existingPhone) {
-        return res.status(409).json(new ApiResponse(409, null, "A phone with this name already exists"));
+    const slugConflict = await productSlugConflict(phoneData.slug);
+    if (slugConflict) {
+        return res.status(409).json(new ApiResponse(409, null, slugConflict));
     }
 
     // Content tracking
@@ -208,13 +209,8 @@ export const updatePhone = asyncHandler(async (req, res) => {
     // Strip placeholder junk ("null"/"N/A"/"-") from the spec tree on update.
     if (updateData.specs) updateData.specs = sanitizeSpecs(updateData.specs);
 
-    if (updateData.name) {
-        updateData.slug = slugify(updateData.name);
-        const existingPhone = await Phone.findOne({ slug: updateData.slug, _id: { $ne: id } });
-        if (existingPhone) {
-            return res.status(409).json(new ApiResponse(409, null, "A phone with this name already exists"));
-        }
-    }
+    // Published product URLs stay stable when names or submitted slugs change.
+    preserveProductSlug(updateData);
 
     // Capture previous state for revision history
     const previousPhone = await Phone.findById(id);

@@ -15,6 +15,7 @@ const pageSchema = new mongoose.Schema({
     meta_title: String,
     meta_description: String,
     keywords: String,
+    is_indexable: { type: Boolean },
   }
 }, { timestamps: true });
 
