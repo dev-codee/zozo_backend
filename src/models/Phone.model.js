@@ -173,7 +173,7 @@ const phoneSchema = new mongoose.Schema({
         ai_keywords: [String],
         // When false, the product page emits <meta name="robots" content="noindex">
         // and is excluded from the sitemap.
-        is_indexable: { type: Boolean, default: true },
+        is_indexable: { type: Boolean, default: false },
     },
 
     sources: [sourceRefSchema],
