@@ -16,7 +16,7 @@ export const getHomeData = asyncHandler(async (req, res) => {
     const trendingPhones = await Phone.find(releasedFilter)
         .sort({ 'rating.average': -1, createdAt: -1 })
         .limit(8)
-        .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices price_pkr rating status')
+        .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices price_pkr price_usd pricing.price_global_base_usd rating status')
         .lean();
 
     // Fetch all brands
@@ -28,7 +28,7 @@ export const getHomeData = asyncHandler(async (req, res) => {
     const latestPhones = await Phone.find(releasedFilter)
         .sort({ createdAt: -1 })
         .limit(4)
-        .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices price_pkr rating status')
+        .select('slug name brand_slug images release_date description specs.performance.chipset specs.performance.ram_options_gb specs.performance.storage_options_gb specs.camera.rear_summary specs.camera.front_summary specs.battery.capacity_mah specs.battery.charging_watts specs.display.size_inches specs.display.type prices price_pkr price_usd pricing.price_global_base_usd rating status')
         .lean();
 
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');

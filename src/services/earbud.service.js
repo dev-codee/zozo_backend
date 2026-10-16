@@ -1,3 +1,4 @@
+import { pricedList } from './pricing.service.js';
 import { Earbud } from '../models/Earbud.model.js';
 
 const listProjection = {
@@ -5,7 +6,7 @@ const listProjection = {
     slug: 1,
     brand_slug: 1,
     'images': { $slice: 1 },
-    price_pkr: 1,
+    price_pkr: 1, price_usd: 1, 'pricing.price_global_base_usd': 1,
     prices: 1,
     status: 1,
     release_date: 1,
@@ -133,13 +134,7 @@ export const getAllEarbuds = async (query = {}) => {
     const page = parseInt(query.page, 10) || 1;
     const skip = limit > 0 ? (page - 1) * limit : 0;
 
-    const total = await Earbud.countDocuments(filter);
-    const earbuds = await Earbud.find(filter)
-        .select(listProjection)
-        .sort(sortQuery)
-        .skip(skip)
-        .limit(limit)
-        .lean();
+    const { total, items: earbuds } = await pricedList(Earbud, filter, listProjection, sortQuery, skip, limit, query);
 
     return {
         earbuds,

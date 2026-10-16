@@ -1,9 +1,10 @@
+import { pricedList } from './pricing.service.js';
 import { Phone } from '../models/Phone.model.js';
 import '../models/AdminUser.model.js';
 
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
-    price_pkr: 1, prices: 1, status: 1, release_date: 1, 
+    price_pkr: 1, price_usd: 1, 'pricing.price_global_base_usd': 1, prices: 1, status: 1, release_date: 1,
     rating: 1, description: 1, updated_at: 1, updatedAt: 1, 'seo.is_indexable': 1, view_count: 1,
     'specs.performance.chipset': 1, 'specs.performance.ram_options_gb': 1, 'specs.performance.storage_options_gb': 1,
     'specs.camera.rear_summary': 1, 'specs.camera.front_summary': 1,
@@ -151,8 +152,7 @@ export const getAllPhones = async (query) => {
     const page = parseInt(query.page, 10) || 1;
     const skip = limit > 0 ? (page - 1) * limit : 0;
 
-    const total = await Phone.countDocuments(filter);
-    const phones = await Phone.find(filter).select(listProjection).sort(sortQuery).skip(skip).limit(limit).lean();
+    const { total, items: phones } = await pricedList(Phone, filter, listProjection, sortQuery, skip, limit, query);
 
     return {
         phones,

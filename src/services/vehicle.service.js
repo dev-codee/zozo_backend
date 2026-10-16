@@ -1,8 +1,9 @@
+import { pricedList } from './pricing.service.js';
 import { Vehicle } from '../models/Vehicle.model.js';
 
 const listProjection = {
     name: 1, slug: 1, brand_slug: 1, 'images': { $slice: 1 }, 
-    price_pkr: 1, prices: 1, status: 1, release_date: 1, 
+    price_pkr: 1, price_usd: 1, 'pricing.price_global_base_usd': 1, prices: 1, status: 1, release_date: 1,
     'ratings.overall': 1, description: 1, updated_at: 1, updatedAt: 1, 'seo.is_indexable': 1,
     ev_category: 1, body_type: 1,
     'specs.battery.capacity_usable_kwh': 1, 'specs.battery.capacity_gross_kwh': 1,
@@ -60,8 +61,7 @@ export const getAllVehicles = async (query) => {
     const limit = parseInt(query.limit) || 24;
     const skip = (page - 1) * limit;
 
-    const total = await Vehicle.countDocuments(filter);
-    const data = await Vehicle.find(filter, listProjection).sort({ ...sort, _id: 1 }).skip(skip).limit(limit).lean();
+    const { total, items: data } = await pricedList(Vehicle, filter, listProjection, { ...sort, _id: 1 }, skip, limit, query);
 
     return {
         data,
@@ -89,7 +89,7 @@ export const getVehicleBySlug = async (slug) => {
             approvalStatus: 'APPROVED',
         })
         .select({
-            _id: 1, name: 1, slug: 1, variant_name: 1, price_pkr: 1,
+            _id: 1, name: 1, slug: 1, variant_name: 1, price_pkr: 1, price_usd: 1, 'pricing.price_global_base_usd': 1,
             'specs.battery.capacity_usable_kwh': 1,
             'specs.range_and_efficiency.wltp_combined_km': 1,
             'specs.powertrain.total_power_hp': 1,

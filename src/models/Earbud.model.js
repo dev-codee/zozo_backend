@@ -36,6 +36,10 @@ const sourceRefSchema = new mongoose.Schema({
 // ─── Main Earbud Schema ────────────────────────────────────────────────────────
 
 const earbudSchema = new mongoose.Schema({
+    // Global reference; local retailer prices remain in their source currency.
+    price_usd: { type: Number, min: 0, validate: { validator: v => v == null || Number.isFinite(v), message: 'Invalid USD price' } },
+    price_usd_source: { type: String, maxlength: 1000 },
+
     slug: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     brand_slug: { type: String, required: true, index: true },

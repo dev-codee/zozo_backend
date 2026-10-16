@@ -52,6 +52,6 @@ export const getPopularVehicleComparisons = async (limit = 10) => {
         .populate({
             path: 'vehicles',
             match: VISIBLE,
-            select: 'slug name images brand_slug ev_category body_type prices price_pkr specs.battery.capacity_usable_kwh specs.range_and_efficiency.wltp_combined_km specs.powertrain.total_power_hp specs.powertrain.acceleration_0_100_kmh',
+            select: 'slug name images brand_slug ev_category body_type prices price_pkr price_usd pricing.price_global_base_usd specs.battery.capacity_usable_kwh specs.range_and_efficiency.wltp_combined_km specs.powertrain.total_power_hp specs.powertrain.acceleration_0_100_kmh',
         });
 };

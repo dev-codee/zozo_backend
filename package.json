@@ -11,7 +11,8 @@
     "seed:ev-brands": "node src/scripts/seedEvBrands.js",
     "seed:earbuds": "node src/scripts/seedSampleEarbuds.js",
     "lint": "eslint .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:currency": "node tests/currency.test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

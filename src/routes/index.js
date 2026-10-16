@@ -1,3 +1,4 @@
+import currencyRoutes from './currency.routes.js';
 import { Router } from 'express';
 import phoneRoutes from './phone.routes.js';
 import brandRoutes from './brand.routes.js';
@@ -23,6 +24,7 @@ import vehicleVoteRoutes from './vehicleVote.routes.js';
 import earbudRoutes from './earbud.routes.js';
 
 const router = Router();
+router.use('/currency', currencyRoutes);
 
 router.use('/home', homeRoutes);
 router.use('/phones', phoneRoutes);

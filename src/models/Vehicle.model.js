@@ -41,6 +41,10 @@ const priceHistoryEntrySchema = new mongoose.Schema({
 // `model_name` + `brand_slug`. Field structure follows EV_SPECIFICATION_FIELDS.md.
 
 const vehicleSchema = new mongoose.Schema({
+    // Global reference; local retailer prices remain in their source currency.
+    price_usd: { type: Number, min: 0, validate: { validator: v => v == null || Number.isFinite(v), message: 'Invalid USD price' } },
+    price_usd_source: { type: String, maxlength: 1000 },
+
     // ── Category 1: Identity & Classification ──────────────────────────────────
     slug: { type: String, required: true, unique: true },
     name: { type: String, required: true },
